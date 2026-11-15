@@ -1302,7 +1302,7 @@ function vSchedule() {
     </section>
     <section class="card">
       <div class="row between"><h2>주간 시간표</h2><button class="btn sm" data-act="addItem">일정 추가</button></div>
-      ${DAYS.map((d) => { const its = kid.items.filter((i) => i.days.includes(d)).sort((a, b) => a.start.localeCompare(b.start)); return `<div class="sched-day ${d === td ? "today" : ""}"><span class="d">${d}</span><div>${its.map((i) => `<div class="slot"><span class="dot" style="background:${esc(kid.color)}"></span><span class="t">${esc(i.start)}–${esc(i.end)}</span><span class="grow small ellipsis">${esc(i.title)}${i.memo ? ` · <span class="muted">${esc(i.memo)}</span>` : ""}</span><button class="link xs" data-act="delItem" data-id="${esc(i.id)}" aria-label="${esc(i.title)} 삭제">삭제</button></div>`).join("") || `<span class="xs muted" style="line-height:32px">-</span>`}</div></div>`; }).join("")}
+      ${DAYS.map((d) => { const its = kid.items.filter((i) => i.days.includes(d)).sort((a, b) => a.start.localeCompare(b.start)); return `<div class="sched-day ${d === td ? "today" : ""}"><span class="d">${d}</span><div>${its.map((i) => `<div class="slot"><span class="dot" style="background:${esc(kid.color)}"></span><span class="t">${esc(i.start)}–${esc(i.end)}</span><span class="grow small ellipsis">${esc(i.title)}${i.memo ? ` · <span class="muted">${esc(i.memo)}</span>` : ""}</span><button class="link xs" data-act="addItem" data-id="${esc(i.id)}" aria-label="${esc(i.title)} 수정">수정</button><button class="link xs" data-act="delItem" data-id="${esc(i.id)}" aria-label="${esc(i.title)} 삭제">삭제</button></div>`).join("") || `<span class="xs muted" style="line-height:32px">-</span>`}</div></div>`; }).join("")}
     </section>
     <div class="row between"><button class="link small" data-act="renameChild">이름·색 바꾸기</button><button class="link small" style="color:var(--danger)" data-act="delChild">${esc(kid.label)} 삭제</button></div>
     <div class="notice">${icon.info}<span>카카오 알림톡 자동 알림은 다음 단계에서 준비 중이에요. 지금은 '문자 복사'로 아이에게 보내 주세요.</span></div>`}`;
@@ -1797,15 +1797,17 @@ const A = {
   addChild: () => modal(`<form class="col" data-form="child"><h2>아이 추가</h2><label class="f">별칭 * <span class="hint">이름 대신 '첫째', '둘째', '막내' 등</span><input class="input" name="label" required maxlength="10" value="${["첫째", "둘째", "셋째", "막내"][(S.data.schedule?.children || []).length] || ""}"></label><fieldset><legend>색</legend><div class="row wrap">${COLORS.map((c, i) => `<label class="check"><input type="radio" name="color" value="${c}" ${i === 0 ? "checked" : ""}><span class="dot" style="width:22px;height:22px;border-radius:11px;background:${c}"></span></label>`).join("")}</div></fieldset><button class="btn lg block" type="submit">추가</button></form>`),
   renameChild: () => { const k = S.data.schedule.children[S.ui.child]; modal(`<form class="col" data-form="child" data-i="${S.ui.child}"><h2>이름·색 바꾸기</h2><label class="f">별칭<input class="input" name="label" required maxlength="10" value="${esc(k.label)}"></label><fieldset><legend>색</legend><div class="row wrap">${COLORS.map((c) => `<label class="check"><input type="radio" name="color" value="${c}" ${k.color === c ? "checked" : ""}><span class="dot" style="width:22px;height:22px;border-radius:11px;background:${c}"></span></label>`).join("")}</div></fieldset><button class="btn lg block" type="submit">저장</button></form>`); },
   delChild: async () => { const sc = S.data.schedule; const k = sc.children[S.ui.child]; if (!(await ask(`${k.label}의 일정을 모두 삭제할까요?`, "삭제", true))) return; sc.children.splice(S.ui.child, 1); S.ui.child = 0; await saveSchedule(); },
-  addItem: () => {
+  addItem: (d = {}) => {
+    // d.id 가 있으면 기존 일정 수정 (요일이 여러 개인 일정은 전체가 함께 바뀜)
+    const it = d.id ? S.data.schedule.children[S.ui.child].items.find((i) => i.id === d.id) : null;
     // 자동완성은 내가 평가한 학원 + 우리 동네 학원(최대 100곳)만 — 수천 개 option 은 모바일에서 무거움
     const acs = [...new Set([...S.data.myReviews.map((r) => acadName(r.academyId)), ...S.data.academies.filter((a) => !a.hidden && a.dong === S.profile.dong).slice(0, 100).map((a) => a.name)])];
-    modal(`<form class="col" data-form="item"><h2>일정 추가</h2>
-      <label class="f">학원·활동 *<input class="input" name="title" required maxlength="30" list="acadNames" placeholder="예: 한빛수학학원"></label><datalist id="acadNames">${acs.map((n) => `<option value="${esc(n)}">`).join("")}</datalist>
-      <fieldset><legend>요일 *</legend><div class="grid3" style="grid-template-columns:repeat(7,minmax(0,1fr));gap:4px">${DAYS.map((d) => `<label class="check" style="flex-direction:column;align-items:center;gap:2px;padding:0"><input type="checkbox" name="days" value="${d}">${d}</label>`).join("")}</div></fieldset>
-      <div class="grid2"><label class="f">시작 *<input class="input" type="time" name="start" required value="16:00" step="300"></label><label class="f">끝 *<input class="input" type="time" name="end" required value="17:00" step="300"></label></div>
-      <label class="f">준비물·메모<input class="input" name="memo" maxlength="40" placeholder="예: 숙제 노트, 체육복"></label>
-      <button class="btn lg block" type="submit">추가</button></form>`);
+    modal(`<form class="col" data-form="item"${it ? ` data-id="${esc(it.id)}"` : ""}><h2>일정 ${it ? "수정" : "추가"}</h2>
+      <label class="f">학원·활동 *<input class="input" name="title" required maxlength="30" list="acadNames" placeholder="예: 한빛수학학원" value="${it ? esc(it.title) : ""}"></label><datalist id="acadNames">${acs.map((n) => `<option value="${esc(n)}">`).join("")}</datalist>
+      <fieldset><legend>요일 *</legend><div class="grid3" style="grid-template-columns:repeat(7,minmax(0,1fr));gap:4px">${DAYS.map((d) => `<label class="check" style="flex-direction:column;align-items:center;gap:2px;padding:0"><input type="checkbox" name="days" value="${d}"${it && it.days.includes(d) ? " checked" : ""}>${d}</label>`).join("")}</div></fieldset>
+      <div class="grid2"><label class="f">시작 *<input class="input" type="time" name="start" required value="${it ? esc(it.start) : "16:00"}" step="300"></label><label class="f">끝 *<input class="input" type="time" name="end" required value="${it ? esc(it.end) : "17:00"}" step="300"></label></div>
+      <label class="f">준비물·메모<input class="input" name="memo" maxlength="40" placeholder="예: 숙제 노트, 체육복" value="${it ? esc(it.memo || "") : ""}"></label>
+      <button class="btn lg block" type="submit">${it ? "저장" : "추가"}</button></form>`);
   },
   delItem: async (d) => { const k = S.data.schedule.children[S.ui.child]; k.items = k.items.filter((i) => i.id !== d.id); await saveSchedule(); },
   copyToday: async () => {
@@ -2126,7 +2128,10 @@ const F = {
   async item(form, fd, v) {
     const days = fd.getAll("days"); if (!days.length) { toast("요일을 골라 주세요"); return; }
     if (v("end") <= v("start")) { toast("끝나는 시간이 시작보다 늦어야 해요"); return; }
-    S.data.schedule.children[S.ui.child].items.push({ id: "i" + now().toString(36), days, start: v("start"), end: v("end"), title: clip(v("title"), 30), memo: clip(v("memo"), 40) });
+    const items = S.data.schedule.children[S.ui.child].items;
+    const val = { days, start: v("start"), end: v("end"), title: clip(v("title"), 30), memo: clip(v("memo"), 40) };
+    const it = form.dataset.id ? items.find((i) => i.id === form.dataset.id) : null;
+    if (it) Object.assign(it, val); else items.push({ id: "i" + now().toString(36), ...val });
     await saveSchedule();
   },
   async profile(form, fd, v) {
