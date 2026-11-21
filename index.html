@@ -252,6 +252,51 @@ footer.foot button{background:none;border:0;color:var(--ink3);text-decoration:un
 .lib-lock .fade{max-height:170px;overflow:hidden;-webkit-mask-image:linear-gradient(#000 20%,transparent);mask-image:linear-gradient(#000 20%,transparent);filter:blur(1.5px);pointer-events:none;user-select:none}
 .lib-gate{border:1px solid var(--line);background:var(--card);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:10px;align-items:center;text-align:center}
 .lib-gate h2{font-size:19px}
+.lib-cats{display:flex;gap:8px;flex-wrap:wrap}
+.lib-cats button{height:38px;padding:0 16px;border-radius:19px;border:1px solid var(--line2);background:var(--card);font-weight:600;font-size:14px;color:var(--ink2);cursor:pointer}
+.lib-cats button.on{border-color:var(--brand);background:var(--brand-l);color:var(--brand-d)}
+.lib-list{background:var(--card);border-radius:16px;padding:4px 16px}
+.lib-row{display:flex;align-items:flex-start;gap:14px;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:14px 0;cursor:pointer;font:inherit;color:inherit}
+.lib-row:first-child{border-top:0}
+.lib-row .n{font-weight:800;font-style:italic;font-size:17px;min-width:20px;color:var(--ink)}
+.lib-row b{font-size:15.5px;line-height:1.45}
+.lib-row:hover b{color:var(--brand)}
+.crumb{display:flex;gap:6px;align-items:center;font-size:13px;color:var(--ink3)}
+.crumb .link{font-size:13px;padding:2px 0}
+.rt.html{gap:0}
+.rt.html p{margin:0 0 6px;min-height:1em}
+.rt.html h2{font-size:19px;margin:16px 0 6px}
+.rt.html h3{font-size:17px;margin:12px 0 4px}
+.rt.html img{max-width:100%;height:auto;border-radius:10px;display:block;margin:8px 0}
+.rt.html iframe{width:100%;aspect-ratio:16/9;height:auto;border-radius:10px;margin:8px 0}
+.rt.html blockquote{margin:8px 0;padding:6px 14px;border-left:4px solid var(--brand);background:var(--brand-l);border-radius:0;color:#0B4848}
+.rt.html ol,.rt.html ul{margin:4px 0 8px;padding-left:22px}
+.rt.html li[data-list=bullet]{list-style-type:disc}
+.rt.html .ql-align-center{text-align:center}
+.rt.html .ql-align-right{text-align:right}
+.rt.html .ql-align-justify{text-align:justify}
+.rt.html .ql-indent-1{padding-left:2em}.rt.html .ql-indent-2{padding-left:4em}
+.rt.html table{border-collapse:collapse;width:100%;font-size:14px;margin:8px 0;display:block;overflow-x:auto}
+.rt.html td,.rt.html th{border:1px solid var(--line);padding:6px 10px;white-space:nowrap}
+.rt.html tr:first-child td{background:#F7F9FA;font-weight:700}
+.f-ed{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--ink2)}
+.f-ed .hint{font-weight:400;color:var(--ink3);font-size:12px}
+.f-ed .ql-toolbar{border-radius:12px 12px 0 0;background:#FAFBFC}
+.f-ed .ql-container{border-radius:0 0 12px 12px;font-size:16px;font-family:inherit}
+.ed .ql-editor{min-height:180px;line-height:1.7}
+.ed.tall .ql-editor{min-height:320px}
+.ed .ql-editor img{max-width:100%}
+.ed .ql-editor td{border:1px solid var(--line2);padding:4px 8px}
+.tbl-tools{display:flex;gap:6px;flex-wrap:wrap}
+.tbl-tools button{font-size:12.5px;padding:5px 10px;border-radius:8px;border:1px solid var(--line2);background:var(--card);cursor:pointer;color:var(--ink2)}
+.tbl-tools button:hover{border-color:var(--brand);color:var(--brand)}
+.cmts{border-top:1px solid var(--line2);padding-top:16px;display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.cmts h2{font-size:17px}
+.cmt{display:flex;flex-direction:column;gap:6px;padding:12px 0;border-bottom:1px solid var(--line)}
+.cmt p{margin:0;white-space:pre-wrap;word-break:break-word}
+.cmt.reply{margin-left:18px;padding-left:14px;border-left:3px solid var(--line)}
+.cmt-like{display:inline-flex;align-items:center;gap:4px;background:none;border:0;cursor:pointer;font-size:13px;color:var(--ink3)}
+.cmt-like.on{color:#C2410C;font-weight:700}
 </style>
 </head>
 <body>
@@ -404,11 +449,15 @@ function seed() {
     },
     // 자료실 예시 (이 파일은 공개되므로 실제 학교별 성적은 넣지 않음. 실제 자료는 관리자가 화면에서 올림)
     library: {
-      l1: { title: "우리 동네 고1 내신 지도 (예시)", summary: ["같은 1등급인데 학교마다 자리 수가 달라요", "A를 받아도 1등급이 아닐 수 있어요", "학교 이름이 들어간 표는 회원에게만 보여요"], level: "member", hidden: false, createdAt: t - 1 * day, updatedAt: t - 1 * day,
+      l1: { title: "우리 동네 고1 내신 지도 (예시)", category: "입시제도", views: 37, summary: ["같은 1등급인데 학교마다 자리 수가 달라요", "A를 받아도 1등급이 아닐 수 있어요", "학교 이름이 들어간 표는 회원에게만 보여요"], level: "member", hidden: false, createdAt: t - 1 * day, updatedAt: t - 1 * day,
         teaser: "5등급제에서 1등급은 과목별 **상위 10%**예요. 학생이 적은 학교는 1등급 자리도 적어요.\n\n::표\n학교,고1 학생,1등급 자리\n가람고,120명,12자리\n나래고,310명,31자리\n::\n\n> 예시 숫자예요. 실제 자료는 운영자가 올려요." }
     },
     libraryFull: {
       l1: { updatedAt: t - 1 * day, body: "# 학교별 수학 성적 (예시)\n\n::표\n학교,평균,A 비율,D+E 비율\n가람고,72.0,11.0%,43.0%\n나래고,68.0,9.7%,51.3%\n::\n\n- 평균이 높다고 공부 잘하는 학교라는 뜻은 아니에요\n- 학교마다 시험이 달라요" }
+    },
+    libComments: {
+      k1: { postId: "l1", parentId: "", uid: "demo_haneul", nick: "하늘맘", text: "우리 아이 학교가 이렇게 다를 줄 몰랐어요. 정리 감사합니다!", likes: L({ demo_doyun: 1 }), hidden: false, createdAt: t - 0.5 * day },
+      k2: { postId: "l1", parentId: "k1", uid: "demo_doyun", nick: "도윤아빠", text: "저도요. 1등급 자리 수는 처음 알았네요.", likes: {}, hidden: false, createdAt: t - 0.3 * day }
     },
     reports: {}, roomRequests: {},
     stats: { global: { visits: 128, members: 3 }, ["d" + ymd()]: { visits: 7 } },
@@ -422,6 +471,7 @@ function makeLocalBackend() {
   try { store = JSON.parse(localStorage.getItem(KEY)); } catch (e) { store = null; }
   if (!store) store = seed();
   if (!store.library) { const s0 = seed(); store.library = s0.library; store.libraryFull = s0.libraryFull; }   // 자료실 이전 데모 데이터
+  if (!store.libComments) store.libComments = seed().libComments;
   const save =() => { try { localStorage.setItem(KEY, JSON.stringify(store)); } catch (e) {} };
   save();
   const col = (c) => store[c] || (store[c] = {});
@@ -509,7 +559,7 @@ let BE = null;
 const S = {
   ready: false, user: null, profile: null, admin: false,
   view: "home", param: null,
-  data: { academies: [], full: {}, acadIndexed: false, indexMeta: null, reviews: [], rides: [], rooms: [], myReviews: [], stats: {}, today: 0, schedule: null, apartments: [], library: null, postFull: {} },
+  data: { academies: [], full: {}, acadIndexed: false, indexMeta: null, reviews: [], rides: [], rooms: [], myReviews: [], stats: {}, today: 0, schedule: null, apartments: [], library: null, postFull: {}, cmts: {} },
   ui: { acadPage: 1, acadSize: PAGE_SIZES.includes(Number(LS.get("hk_acad_size"))) ? Number(LS.get("hk_acad_size")) : 10, school: "", cat: "전체", dong: "전체", sort: "rating", q: "", acadTab: "reviews", rankMode: "month", rideAcad: "전체", child: 0, adminTab: "stats", gateMode: "new", reviewFor: "", editReview: null, csv: null }
 };
 const isStaff = () => !!(S.profile && S.profile.staff);
@@ -788,6 +838,7 @@ function renderApp() {
 }
 function afterRender() {
   if ($("#t3")) startT3();
+  if ($('[data-form="post"]')) initEditors();
   const q = $("#acadSearch"); if (q && S.ui.focusSearch) { q.focus(); q.setSelectionRange(q.value.length, q.value.length); S.ui.focusSearch = false; }
 }
 
@@ -1727,18 +1778,29 @@ function richText(src) {
   flushP(); flushL();
   return `<div class="rt">${out.join("")}</div>`;
 }
+const LIB_CATS = ["공지", "입시제도", "학원정보"];
+const libCat = (p) => (LIB_CATS.includes(p.category) ? p.category : "공지");
+// 몇 분 전 · 몇 시간 전 · 며칠 전, 일주일이 넘으면 날짜
+const ago = (t) => { const m = Math.floor((now() - (t || 0)) / 6e4); return m < 1 ? "방금" : m < 60 ? m + "분 전" : m < 1440 ? Math.floor(m / 60) + "시간 전" : m < 10080 ? Math.floor(m / 1440) + "일 전" : fmtDate(t); };
 function vLibrary() {
   if (!S.data.library) { loadLibrary(); return LOADING; }
+  const cat = S.ui.libCat || "전체";
+  const list = S.data.library.filter((p) => cat === "전체" || libCat(p) === cat);
   return `<section class="post col" style="gap:12px">
     <div class="row between" style="align-items:flex-start;gap:10px">
       <div class="col" style="gap:2px"><h1>학딩자료실</h1><p class="small muted">학부모님께 필요한 자료를 학딩이 직접 모으고 정리했어요.</p></div>
       ${S.admin ? `<button class="btn sm" data-act="nav" data-v="postEdit">새 자료 쓰기</button>` : ""}
     </div>
-    ${S.data.library.map((p) => `<button class="lib-item" data-act="nav" data-v="post" data-p="${esc(p.id)}">
-      <span class="row" style="gap:6px">${p.hidden ? '<span class="badge danger">숨김</span>' : ""}<span class="badge ${p.level === "gate" ? "accent" : "brand"}">${p.level === "gate" ? "후기 쓴 회원 공개" : "회원 공개"}</span><span class="xs muted">${fmtDate(p.createdAt)}</span></span>
-      <b>${esc(p.title)}</b>
-      ${(p.summary || []).length ? `<span class="small muted">${esc(p.summary[0])}</span>` : ""}
-    </button>`).join("") || `<div class="empty">아직 올라온 자료가 없어요</div>`}
+    <div class="lib-cats" role="group" aria-label="분야">${["전체", ...LIB_CATS].map((c) => `<button class="${c === cat ? "on" : ""}" aria-pressed="${c === cat}" data-act="libCat" data-c="${c}">${c}</button>`).join("")}</div>
+    <div class="lib-list">
+    ${list.map((p, i) => `<button class="lib-row" data-act="nav" data-v="post" data-p="${esc(p.id)}">
+      <span class="n">${i + 1}</span>
+      <span class="grow col" style="gap:2px;min-width:0">
+        <b>${esc(p.title)}</b>
+        <span class="xs muted">${cat === "전체" ? esc(libCat(p)) + " · " : ""}${ago(p.createdAt)} · 조회 ${(p.views || 0).toLocaleString()}${p.level === "gate" ? " · 후기 쓴 회원 공개" : ""}${p.hidden ? ' · <span style="color:var(--danger)">숨김</span>' : ""}</span>
+      </span>
+    </button>`).join("") || `<div class="empty">${cat === "전체" ? "아직 올라온 자료가 없어요" : esc(cat) + " 자료가 아직 없어요"}</div>`}
+    </div>
   </section>`;
 }
 const LIB_FADE = `<div class="fade" aria-hidden="true"><div class="rt-tbl"><table><thead><tr><th>학교</th><th>국어</th><th>수학</th><th>영어</th></tr></thead><tbody>${"<tr><td>■■■■고</td><td>■■.■</td><td>■■.■</td><td>■■.■</td></tr>".repeat(4)}</tbody></table></div></div>`;
@@ -1753,24 +1815,117 @@ function vPost() {
   if (!S.data.library) { loadLibrary(); return LOADING; }
   const p = S.data.library.find((x) => x.id === S.param);
   if (!p) return `<section class="card"><div class="empty">자료를 찾지 못했어요<br><button class="link" data-act="nav" data-v="library">학딩자료실로</button></div></section>`;
+  countView(p);
+  const show = (x) => (p.fmt === "html" ? `<div class="rt html">${cleanHtml(x)}</div>` : richText(x));   // 예전 글은 간단 표기, 새 글은 편집기 HTML
   let rest;
   if (libCanRead(p)) {
     const f = S.data.postFull[fullKey(p.id)];
     if (f === undefined) loadFull(p.id);
-    rest = f ? richText(f.body) : f === false ? `<div class="notice">${icon.info}<span>뒷부분을 불러오지 못했어요. 새로고침해 주세요.</span></div>` : LOADING;
+    rest = f ? show(f.body) : f === false ? `<div class="notice">${icon.info}<span>뒷부분을 불러오지 못했어요. 새로고침해 주세요.</span></div>` : LOADING;
   } else rest = libGate(p);
   return `<article class="post col" style="gap:14px">
-    <button class="link" style="align-self:flex-start" data-act="nav" data-v="library">‹ 학딩자료실</button>
-    <div class="col" style="gap:4px"><span class="xs muted">학딩자료실 · ${fmtDate(p.createdAt)}</span><h1>${esc(p.title)}</h1></div>
+    <div class="crumb"><button class="link" data-act="nav" data-v="library">학딩자료실</button><span>/</span><button class="link" data-act="libCatGo" data-c="${esc(libCat(p))}">${esc(libCat(p))}</button></div>
+    <div class="col" style="gap:6px"><h1>${esc(p.title)}</h1><span class="small muted">${ago(p.createdAt)}${p.updatedAt && p.updatedAt - (p.createdAt || 0) > 6e4 ? " (수정됨)" : ""} · 조회수 <b>${(p.views || 0).toLocaleString()}</b></span></div>
     ${(p.summary || []).length ? `<div class="sum"><b>핵심 요약</b><ul>${p.summary.map((s) => `<li>${esc(s)}</li>`).join("")}</ul></div>` : ""}
-    ${richText(p.teaser)}
+    ${show(p.teaser)}
     ${rest}
-    ${S.admin ? `<div class="row" style="gap:8px"><button class="btn ghost sm" data-act="nav" data-v="postEdit" data-p="${esc(p.id)}">수정</button><button class="btn danger sm" data-act="postDel" data-id="${esc(p.id)}">삭제</button></div>` : ""}
+    ${S.admin ? `<div class="row" style="gap:8px;justify-content:flex-end"><button class="btn danger sm" data-act="postDel" data-id="${esc(p.id)}">삭제</button><button class="btn ghost sm" data-act="nav" data-v="postEdit" data-p="${esc(p.id)}">수정</button></div>` : ""}
+    ${commentsHtml(p)}
   </article>`;
 }
+// 조회수: 이 탭에서 글마다 한 번만 +1 (운영자는 세지 않음)
+function countView(p) {
+  if (S.admin || p.hidden) return;
+  let seen = [];
+  try { seen = JSON.parse(sessionStorage.getItem("hk_viewed") || "[]"); } catch (e) { return; }
+  if (seen.includes(p.id)) return;
+  seen.push(p.id);
+  try { sessionStorage.setItem("hk_viewed", JSON.stringify(seen.slice(-200))); } catch (e) {}
+  p.views = (p.views || 0) + 1;
+  BE.db.inc("library", p.id, "views").catch((e) => console.warn("조회수", e));
+}
+
+/* ---------- 편집기 HTML을 안전하게 거르기: 허용한 태그·속성만 남김 ---------- */
+const HTML_OK = new Set(["P", "BR", "STRONG", "B", "EM", "I", "U", "S", "SPAN", "H2", "H3", "BLOCKQUOTE", "UL", "OL", "LI", "A", "IMG", "TABLE", "THEAD", "TBODY", "TR", "TD", "TH", "IFRAME", "PRE", "CODE", "HR", "SUB", "SUP"]);
+const HTML_DROP = new Set(["SCRIPT", "STYLE", "OBJECT", "EMBED", "FORM", "INPUT", "TEXTAREA", "SELECT", "BUTTON", "LINK", "META", "SVG", "MATH", "TEMPLATE", "NOSCRIPT"]);
+const SAFE_COLOR = /^(color|background-color)\s*:\s*(#[0-9a-f]{3,8}|rgba?\([\d\s.,%]+\)|[a-z]+)$/i;
+function cleanHtml(html) {
+  const root = new DOMParser().parseFromString(`<div>${html || ""}</div>`, "text/html").body.firstChild;
+  const walk = (el) => [...el.children].forEach((c) => {
+    const tag = c.tagName === "H1" ? "H2" : c.tagName;
+    if (HTML_DROP.has(tag)) { c.remove(); return; }
+    if (!HTML_OK.has(tag)) { walk(c); c.replaceWith(...c.childNodes); return; }
+    [...c.attributes].forEach((a) => {
+      const n = a.name.toLowerCase(), v = a.value.trim();
+      let keep = null;
+      if (n === "class") keep = v.split(/\s+/).filter((x) => /^ql-(align|indent|direction)-[a-z0-9]+$|^ql-video$/.test(x)).join(" ");
+      else if (n === "style") keep = v.split(";").map((x) => x.trim()).filter((x) => SAFE_COLOR.test(x)).join(";");
+      else if (n === "href" && tag === "A") keep = /^https?:\/\//i.test(v) || v.startsWith("#/") ? v : "";
+      else if (n === "src" && tag === "IMG") keep = /^https:\/\//i.test(v) ? v : "";
+      else if (n === "src" && tag === "IFRAME") keep = /^https:\/\/(www\.)?youtube(-nocookie)?\.com\/embed\/[\w-]+/i.test(v) ? v : "";
+      else if (["alt", "colspan", "rowspan"].includes(n) || (n === "data-list" && tag === "LI")) keep = v;
+      if (keep) { if (keep !== a.value) c.setAttribute(a.name, keep); } else c.removeAttribute(a.name);
+    });
+    if ((tag === "IMG" || tag === "IFRAME") && !c.getAttribute("src")) { c.remove(); return; }
+    if (tag === "A") { c.setAttribute("target", "_blank"); c.setAttribute("rel", "noopener noreferrer"); }
+    if (tag === "IMG") c.setAttribute("loading", "lazy");
+    if (tag === "IFRAME") { c.setAttribute("allowfullscreen", ""); c.setAttribute("frameborder", "0"); }
+    if (tag !== c.tagName) { const h = document.createElement(tag); h.innerHTML = c.innerHTML; c.replaceWith(h); walk(h); return; }
+    walk(c);
+  });
+  walk(root);
+  return root.innerHTML;
+}
+
+/* ---------- 댓글 (가입 회원 누구나 읽기·쓰기) ---------- */
+const CMT_GONE = "삭제된 댓글이에요";
+function loadCmts(pid) {
+  if (pid in S.data.cmts) return;
+  S.data.cmts[pid] = null;
+  BE.db.list("libComments", ["postId", "==", pid]).then((l) => (S.data.cmts[pid] = l)).catch((e) => { console.warn("댓글", e); S.data.cmts[pid] = false; }).finally(render);
+}
+function cmtHtml(c, reply) {
+  const mine = S.user && c.uid === S.user.uid, gone = c.text === CMT_GONE;
+  const liked = S.user && c.likes && c.likes[S.user.uid];
+  const who = c.admin ? `${esc(c.nick)} <span class="badge accent">운영자</span>` : esc(mine ? c.nick : maskNick(c.nick));
+  return `<div class="cmt${reply ? " reply" : ""}">
+    <div class="row" style="gap:8px"><b class="small">${who}</b><span class="xs muted">${ago(c.createdAt)}</span></div>
+    <p class="${gone ? "muted" : ""}">${esc(c.text)}</p>
+    ${gone ? "" : `<div class="row" style="gap:8px">
+      ${reply ? "" : `<button class="btn ghost sm" data-act="cmtReply" data-id="${esc(c.id)}">답글</button>`}
+      <span class="grow"></span>
+      ${mine || S.admin ? `<button class="link small" style="color:var(--ink3)" data-act="cmtDel" data-id="${esc(c.id)}">삭제</button>` : ""}
+      <button class="cmt-like${liked ? " on" : ""}" data-act="cmtLike" data-id="${esc(c.id)}" aria-pressed="${!!liked}">좋아요 ${keys(c.likes).length} ${liked ? icon.heartFill : icon.heart}</button>
+    </div>`}
+  </div>`;
+}
+function commentsHtml(p) {
+  if (!S.profile && !S.admin) return `<section class="cmts"><h2>댓글</h2><div class="lib-gate" style="padding:14px"><p class="small muted" style="margin:0">가입한 회원은 댓글을 보고 쓸 수 있어요.</p>${S.user ? "" : `<button class="btn sm" data-act="libLogin" data-id="${esc(p.id)}">구글로 가입하고 댓글 보기</button>`}</div></section>`;
+  const all = S.data.cmts[p.id];
+  if (all === undefined) loadCmts(p.id);
+  if (!all) return `<section class="cmts"><h2>댓글</h2>${all === false ? `<div class="empty">댓글을 불러오지 못했어요</div>` : LOADING}</section>`;
+  const vis = all.filter((c) => !c.hidden || S.admin);
+  const top = vis.filter((c) => !c.parentId), kids = (id) => vis.filter((c) => c.parentId === id).sort((a, b) => a.createdAt - b.createdAt);
+  const sort = S.ui.cmtSort || "best";
+  top.sort((a, b) => (sort === "best" ? keys(b.likes).length - keys(a.likes).length : 0) || b.createdAt - a.createdAt);
+  const shown = top.filter((c) => c.text !== CMT_GONE || kids(c.id).length);   // 지운 댓글은 답글이 있을 때만 자리 남김
+  const n = vis.filter((c) => c.text !== CMT_GONE).length;
+  return `<section class="cmts">
+    <div class="row between"><h2>댓글 ${n}</h2>
+      <div class="tabbar" style="width:150px"><button class="${sort === "best" ? "on" : ""}" data-act="cmtSort" data-s="best">추천순</button><button class="${sort === "new" ? "on" : ""}" data-act="cmtSort" data-s="new">최신순</button></div>
+    </div>
+    <form class="col" data-form="cmt" data-post="${esc(p.id)}" data-parent="" style="gap:8px">
+      <textarea class="input" name="text" required minlength="2" maxlength="1000" placeholder="자료를 읽고 든 생각이나 궁금한 점을 남겨 주세요" style="min-height:76px"></textarea>
+      <button class="btn sm" type="submit" style="align-self:flex-end">댓글 남기기</button>
+    </form>
+    ${shown.map((c) => cmtHtml(c, false) + kids(c.id).filter((r) => r.text !== CMT_GONE).map((r) => cmtHtml(r, true)).join("")
+      + (S.ui.replyTo === c.id ? `<form class="col cmt reply" data-form="cmt" data-post="${esc(p.id)}" data-parent="${esc(c.id)}" style="gap:8px"><textarea class="input" name="text" required minlength="2" maxlength="1000" placeholder="답글을 남겨 주세요" style="min-height:64px"></textarea><div class="row" style="gap:8px;justify-content:flex-end"><button class="link small" type="button" data-act="cmtReply" data-id="">취소</button><button class="btn sm" type="submit">답글 남기기</button></div></form>` : "")).join("")
+      || `<div class="empty">첫 댓글을 남겨 주세요</div>`}
+  </section>`;
+}
 function vPostEdit() {
-  const id = S.param;
-  let e = { title: "", summary: [], teaser: "", level: "member", hidden: false }, body = "";
+  const id = S.param, key = id || "new";
+  let e = { title: "", category: "입시제도", summary: [], level: "member", hidden: false }, teaser = "", body = "";
   if (id) {
     if (!S.data.library) { loadLibrary(); return LOADING; }
     const p = S.data.library.find((x) => x.id === id);
@@ -1778,19 +1933,68 @@ function vPostEdit() {
     const f = S.data.postFull[fullKey(id)];
     if (f === undefined) { loadFull(id); return LOADING; }
     if (f === null) return LOADING;
-    e = p; body = (f && f.body) || "";
+    // 예전 간단 표기 글은 HTML로 바꿔서 편집기에 넣음
+    const toHtml = (x) => (p.fmt === "html" ? x : richText(x));
+    e = p; teaser = toHtml(p.teaser); body = toHtml((f && f.body) || "");
   }
+  const d = S.ui.postDraft && S.ui.postDraft.key === key ? S.ui.postDraft : null;   // 작성 중이던 내용이 있으면 이어서
+  if (d) { e = { ...e, title: d.title, category: d.category, summary: d.summary.split("\n"), level: d.level, hidden: d.hidden }; teaser = d.teaser; body = d.body; }
+  EDITOR_INIT = { teaser, body };
+  const tools = (ed) => `<div class="tbl-tools" data-ed="${ed}">${[["insert", "표 넣기"], ["row", "행 추가"], ["col", "열 추가"], ["delRow", "행 삭제"], ["delCol", "열 삭제"], ["delTable", "표 삭제"]].map(([op, l]) => `<button type="button" data-act="edTable" data-ed="${ed}" data-op="${op}">${l}</button>`).join("")}</div>`;
   return `<form class="post card" data-form="post" data-id="${esc(id || "")}">
     <h1>${id ? "자료 수정" : "새 자료 쓰기"}</h1>
+    <div class="grid2" style="gap:10px">
+      <label class="f">분야<select class="input" name="category">${LIB_CATS.map((c) => `<option ${libCat(e) === c ? "selected" : ""}>${c}</option>`).join("")}</select></label>
+      <label class="f">뒷부분 공개 대상<select class="input" name="level"><option value="member" ${e.level !== "gate" ? "selected" : ""}>가입한 회원 모두</option><option value="gate" ${e.level === "gate" ? "selected" : ""}>후기 1개 쓴 회원만</option></select></label>
+    </div>
     <label class="f">제목<input class="input" name="title" required maxlength="80" value="${esc(e.title)}"></label>
     <label class="f">핵심 요약 <span class="hint">한 줄에 하나씩, 최대 5줄 · 누구나 봐요</span><textarea class="input" name="summary" rows="4">${esc((e.summary || []).join("\n"))}</textarea></label>
-    <label class="f">앞부분 <span class="hint">누구나 보는 부분 · 맘카페에서 넘어온 분이 가입 전에 읽어요</span><textarea class="input" name="teaser" rows="8" required maxlength="6000">${esc(e.teaser)}</textarea></label>
-    <label class="f">뒷부분 <span class="hint">회원만 보는 부분 · 학교 이름이 들어간 표 같은 중요한 내용</span><textarea class="input" name="body" rows="14" required maxlength="30000">${esc(body)}</textarea></label>
-    <p class="small muted">쓰는 법: <b># 소제목</b> · <b>- 목록</b> · <b>&gt; 안내 상자</b> · <b>**굵게**</b> · 표는 <b>::표</b> 줄과 <b>::</b> 줄 사이에 쉼표로 칸을 나눠 써요 (첫 줄이 머리글)</p>
-    <label class="f">뒷부분 공개 대상<select class="input" name="level"><option value="member" ${e.level !== "gate" ? "selected" : ""}>가입한 회원 모두</option><option value="gate" ${e.level === "gate" ? "selected" : ""}>후기 1개 쓴 회원만</option></select></label>
+    <div class="f-ed"><b>앞부분</b> <span class="hint">누구나 보는 부분 · 맘카페에서 넘어온 분이 가입 전에 읽어요</span><div class="ed" id="edTeaser"></div>${tools("teaser")}</div>
+    <div class="f-ed"><b>뒷부분</b> <span class="hint">회원만 보는 부분 · 학교 이름이 들어간 표 같은 중요한 내용</span><div class="ed tall" id="edBody"></div>${tools("body")}</div>
+    <p class="small muted">사진은 GitHub 저장소에 올린 뒤 그 주소(https://…)를 🖼 버튼으로 넣어요. 예) https://hakding-app.github.io/hakding/img/card1.png · 동영상은 ▶ 버튼에 유튜브 주소를 넣어요.</p>
     <label class="check"><input type="checkbox" name="hidden" ${e.hidden ? "checked" : ""}>숨기기 (관리자만 보여요)</label>
-    <button class="btn lg block" type="submit">${id ? "저장" : "올리기"}</button>
+    <div class="row" style="gap:8px"><button class="btn ghost" type="button" data-act="postCancel" data-id="${esc(id || "")}">취소</button><button class="btn lg grow" type="submit">${id ? "저장" : "올리기"}</button></div>
   </form>`;
+}
+
+/* ---------- 꾸미기 편집기 (Quill, 관리자 글쓰기 화면에서만 불러옴) ---------- */
+const QUILL_URL = "https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/";
+let quillP = null, EDITORS = {}, EDITOR_INIT = null;
+function loadQuill() {
+  if (window.Quill) return Promise.resolve();
+  if (!quillP) quillP = new Promise((res, rej) => {
+    const l = document.createElement("link"); l.rel = "stylesheet"; l.href = QUILL_URL + "quill.snow.css"; document.head.appendChild(l);
+    const s = document.createElement("script"); s.src = QUILL_URL + "quill.js";
+    s.onload = res; s.onerror = () => { quillP = null; rej(new Error("편집기를 불러오지 못했어요. 인터넷 연결을 확인해 주세요.")); };
+    document.head.appendChild(s);
+  });
+  return quillP;
+}
+const EDITOR_TOOLBAR = [[{ header: [2, 3, false] }], ["bold", "italic", "underline", "strike"], [{ color: [] }, { background: [] }], [{ list: "ordered" }, { list: "bullet" }, "blockquote"], [{ align: [] }], ["link", "image", "video"], ["clean"]];
+function imageByUrl() {
+  const u = (prompt("이미지 주소를 붙여 넣으세요 (https://로 시작)\n예) https://hakding-app.github.io/hakding/img/card1.png") || "").trim();
+  if (!u) return;
+  if (!/^https:\/\//i.test(u)) { toast("https:// 로 시작하는 이미지 주소만 넣을 수 있어요"); return; }
+  const r = this.quill.getSelection(true); this.quill.insertEmbed(r.index, "image", u, "user"); this.quill.setSelection(r.index + 1, 0);
+}
+function saveDraft() {
+  const form = $('[data-form="post"]'); if (!form || !EDITORS.teaser || !EDITORS.body) return;
+  S.ui.postDraft = { key: form.dataset.id || "new", title: form.title.value, category: form.category.value, summary: form.summary.value, level: form.level.value, hidden: form.hidden.checked, teaser: EDITORS.teaser.root.innerHTML, body: EDITORS.body.root.innerHTML };
+}
+function initEditors() {
+  const form = $('[data-form="post"]'); if (!form || form._ed) return;
+  form._ed = true; EDITORS = {};
+  const init = EDITOR_INIT || { teaser: "", body: "" };
+  loadQuill().then(() => {
+    if (!document.body.contains(form)) return;
+    [["teaser", "#edTeaser", "누구나 보는 앞부분을 써 주세요"], ["body", "#edBody", "회원만 보는 뒷부분을 써 주세요"]].forEach(([k, sel, ph]) => {
+      const q = new Quill(form.querySelector(sel), { theme: "snow", placeholder: ph, modules: { table: true, toolbar: { container: EDITOR_TOOLBAR, handlers: { image: imageByUrl } } } });
+      q.setContents(q.clipboard.convert({ html: cleanHtml(init[k]) }), "silent");
+      q.on("text-change", saveDraft);
+      EDITORS[k] = q;
+    });
+    form.addEventListener("input", saveDraft); form.addEventListener("change", saveDraft);
+  }).catch((e) => toast(e.message));
 }
 
 /* =====================================================================
@@ -1844,9 +2048,42 @@ const A = {
   libLogin: (d) => { setReturn("post", d.id); return A.login(); },
   libGateGo: (d) => { setReturn("post", d.id); go("gate"); },
   async postDel(d) {
-    if (!(await ask("이 자료를 지울까요?\n지우면 되돌릴 수 없어요.", "지우기", true))) return;
+    if (!(await ask("이 자료를 지울까요?\n댓글도 함께 지워지고, 되돌릴 수 없어요.", "지우기", true))) return;
+    const cs = await BE.db.list("libComments", ["postId", "==", d.id]).catch(() => []);
+    for (const c of cs) await BE.db.del("libComments", c.id).catch(() => {});
     await BE.db.del("libraryFull", d.id).catch(() => {}); await BE.db.del("library", d.id);
-    S.data.library = null; toast("자료를 지웠어요"); go("library");
+    S.data.library = null; delete S.data.cmts[d.id]; toast("자료를 지웠어요"); go("library");
+  },
+  libCat: (d) => { S.ui.libCat = d.c; render(); },
+  libCatGo: (d) => { S.ui.libCat = d.c; go("library"); },
+  async postCancel(d) {
+    if (S.ui.postDraft && !(await ask("작성 중인 내용을 버리고 나갈까요?", "나가기"))) return;
+    S.ui.postDraft = null; if (d.id) go("post", d.id); else go("library");
+  },
+  edTable(d) {
+    const q = EDITORS[d.ed]; if (!q) return;
+    const t = q.getModule("table"); q.focus();
+    const op = { insert: () => t.insertTable(3, 3), row: () => t.insertRowBelow(), col: () => t.insertColumnRight(), delRow: () => t.deleteRow(), delCol: () => t.deleteColumn(), delTable: () => t.deleteTable() }[d.op];
+    try { op && op(); } catch (e) { toast("표 안의 칸을 먼저 눌러 주세요"); }
+  },
+  cmtSort: (d) => { S.ui.cmtSort = d.s; render(); },
+  cmtReply: (d) => { if (!S.profile && !S.admin) return; S.ui.replyTo = S.ui.replyTo === d.id ? "" : d.id; render(); const t = $('[data-parent="' + d.id + '"] textarea'); if (t) t.focus(); },
+  async cmtLike(d) {
+    if (!S.user || (!S.profile && !S.admin)) { toast("가입한 회원만 좋아요를 누를 수 있어요"); return; }
+    const c = Object.values(S.data.cmts).flatMap((l) => l || []).find((x) => x.id === d.id); if (!c) return;
+    const on = !(c.likes && c.likes[S.user.uid]);
+    await BE.db.setKey("libComments", c.id, "likes", S.user.uid, on ? now() : null);
+    c.likes = { ...(c.likes || {}) }; if (on) c.likes[S.user.uid] = now(); else delete c.likes[S.user.uid];
+    render();
+  },
+  async cmtDel(d) {
+    const pid = Object.keys(S.data.cmts).find((k) => (S.data.cmts[k] || []).some((x) => x.id === d.id)); if (!pid) return;
+    const list = S.data.cmts[pid], c = list.find((x) => x.id === d.id);
+    if (!(await ask("이 댓글을 지울까요?", "지우기", true))) return;
+    // 답글이 달린 댓글은 자리만 남기고 내용을 지움 (답글이 흩어지지 않게)
+    if (list.some((x) => x.parentId === c.id)) await BE.db.update("libComments", c.id, { text: CMT_GONE });
+    else await BE.db.del("libComments", c.id);
+    delete S.data.cmts[pid]; toast("댓글을 지웠어요"); render();
   },
   addAcad: () => modal(`<form class="col" data-form="newAcad"><h2>학원 추가</h2><p class="small muted">이미 있는 학원인지 검색해 보고 추가해 주세요.</p>${acadFormFields()}<button class="btn lg block" type="submit">등록</button></form>`),
   back: () => (history.length > 1 ? history.back() : go("home")),
@@ -2130,7 +2367,7 @@ const A = {
 async function saveSchedule() { try { await BE.db.set("schedules", S.user.uid, { children: S.data.schedule.children, updatedAt: now() }); closeModal(); render(); } catch (e) { fail(e); } }
 
 // 관리자 전용 동작·폼: 화면이 어떻게 열렸든 관리자가 아니면 실행하지 않음 (Firestore 규칙과 이중 방어)
-const ADMIN_ACTS = new Set(["hide", "adminDel", "repDone", "reqDone", "roomEdit", "roomDel", "neisOpen", "schoolSync", "artsSplit", "neisApply", "acadClose", "rebuildIdx", "acadRestore", "acadDelete", "exportAcadCsv", "adminTab", "seedReset", "memberOpen", "memberBan", "memberUnban", "memberUnstaff", "memberHideAll", "postDel"]);
+const ADMIN_ACTS = new Set(["hide", "adminDel", "repDone", "reqDone", "roomEdit", "roomDel", "neisOpen", "schoolSync", "artsSplit", "neisApply", "acadClose", "rebuildIdx", "acadRestore", "acadDelete", "exportAcadCsv", "adminTab", "seedReset", "memberOpen", "memberBan", "memberUnban", "memberUnstaff", "memberHideAll", "postDel", "edTable", "postCancel"]);
 const ADMIN_FORMS = new Set(["room", "backup", "decrypt", "neisFetch", "neisFiles", "csvLoad", "csvImport", "cafeImport", "post"]);
 document.addEventListener("click", (e) => {
   const el = e.target.closest("[data-act]"); if (!el) return;
@@ -2141,6 +2378,8 @@ document.addEventListener("click", (e) => {
   if (ADMIN_ACTS.has(el.dataset.act) && !S.admin) return;
   try { const r = f(el.dataset, el, e); if (r && typeof r.catch === "function") r.catch(fail); } catch (err) { fail(err); }
 });
+// 편집기 표 버튼: 누를 때 편집기 커서가 빠지지 않게
+document.addEventListener("mousedown", (e) => { if (e.target.closest(".tbl-tools button")) e.preventDefault(); });
 // 카드(div role=link)도 키보드 Enter로 열리게
 document.addEventListener("keydown", (e) => { if (e.key === "Enter" && e.target.matches('[role="link"][data-act]')) e.target.click(); });
 const inputT = {};
@@ -2185,16 +2424,28 @@ const tgChips = (a, max = 13) => { const g = a.targetGrades || []; if (!g.length
 const cleanArea = (s) => clip([...new Set(String(s || "").split(/[,，·\/\n]+/).map((x) => normSchool(x)).filter(Boolean))].slice(0, 12).join(", "), 150);
 const F = {
   async post(form, fd) {
+    if (!EDITORS.teaser || !EDITORS.body) { toast("편집기가 아직 준비되지 않았어요. 잠시 후 다시 눌러 주세요"); return; }
+    if (!EDITORS.teaser.getText().trim()) { toast("앞부분을 써 주세요"); return; }
     const id = form.dataset.id;
     const summary = String(fd.get("summary") || "").split("\n").map((s) => s.trim()).filter(Boolean).slice(0, 5).map((s) => s.slice(0, 120));
-    const meta = { title: clip(fd.get("title"), 80), summary, teaser: String(fd.get("teaser") || "").slice(0, 6000), level: fd.get("level") === "gate" ? "gate" : "member", hidden: fd.get("hidden") === "on", updatedAt: now() };
-    const full = { body: String(fd.get("body") || "").slice(0, 30000), updatedAt: now() };
+    // 편집기 내용은 저장할 때 한 번 더 걸러 둠 (붙여 넣은 사진 파일·스크립트 등 제거). 글 한 편은 Firestore 문서 한도(1MB) 안에서
+    const teaser = cleanHtml(EDITORS.teaser.root.innerHTML), body = cleanHtml(EDITORS.body.root.innerHTML);
+    if (teaser.length > 200000 || body.length > 600000) { toast("글이 너무 길어요. 나눠서 올려 주세요"); return; }
+    const meta = { title: clip(fd.get("title"), 80), category: LIB_CATS.includes(fd.get("category")) ? fd.get("category") : "공지", summary, teaser, fmt: "html", level: fd.get("level") === "gate" ? "gate" : "member", hidden: fd.get("hidden") === "on", updatedAt: now() };
     let pid = id;
     if (id) await BE.db.update("library", id, meta);
-    else pid = await BE.db.add("library", { ...meta, createdAt: now() });
-    await BE.db.set("libraryFull", pid, full);
-    S.data.library = null; S.data.postFull = {};
+    else pid = await BE.db.add("library", { ...meta, views: 0, createdAt: now() });
+    await BE.db.set("libraryFull", pid, { body, updatedAt: now() });
+    S.ui.postDraft = null; S.data.library = null; S.data.postFull = {};
     toast(id ? "저장했어요" : "자료를 올렸어요"); go("post", pid);
+  },
+  async cmt(form, fd) {
+    if (!S.profile && !S.admin) { toast("가입한 회원만 댓글을 쓸 수 있어요"); return; }
+    const text = clip(fd.get("text"), 1000);
+    if (text.length < 2) { toast("두 글자 이상 써 주세요"); return; }
+    const pid = form.dataset.post;
+    await BE.db.add("libComments", { postId: pid, parentId: form.dataset.parent || "", uid: S.user.uid, nick: S.profile ? S.profile.nick : "운영자", ...(S.admin ? { admin: true } : {}), text, likes: {}, hidden: false, createdAt: now() });
+    S.ui.replyTo = ""; delete S.data.cmts[pid]; toast("댓글을 남겼어요"); render();
   },
   async homeSearch(form, fd) { S.ui.q = clip(fd.get("q"), 40); S.ui.focusSearch = false; go("academies"); },
   async schoolFind(form, fd) { S.ui.school = clip(fd.get("school"), 20); S.ui.acadPage = 1; render(); },
