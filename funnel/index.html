@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>울산 고1 내신 지도</title>
+<meta name="description" content="울산 일반고 40곳의 고1 성적 공시를 모두 모았습니다. 같은 1등급인데 학교마다 자리 수가 다릅니다.">
+<meta property="og:title" content="울산 고1 내신 지도 · 학딩">
+<meta property="og:description" content="같은 1등급, 학교마다 자리 수는 최대 4배. 울산 일반고 40곳 고1 성적표를 모두 열어봤습니다.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Nanum+Pen+Script&family=Noto+Sans+KR:wght@400;500;700;900&display=swap">
+<style>
+  /* 콘셉트: 채점된 성적표 — 공책 줄 종이 위에 빨간 펜 채점과 형광펜. 휴대폰 한 화면 = 카드 한 장 */
+  :root {
+    --paper: #fbfcfd;
+    --rule: #dbe6f0;
+    --margin: #f2b8b5;
+    --ink: #1d2733;
+    --ink-soft: #5b6775;
+    --pen: #d6332a;
+    --hl: #ffe55c;
+    --hl-soft: #fff3a8;
+    --line: #e3e8ee;
+    --chip: #eef3f8;
+    --cta: #0f7c74;
+    --cta-ink: #ffffff;
+    --desk: #e9edf1;
+    --display: "Black Han Sans", "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --body: "Noto Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+    --pen-font: "Nanum Pen Script", "Noto Sans KR", cursive;
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0; background: var(--desk); color: var(--ink);
+    font: 400 15px/1.6 var(--body); -webkit-font-smoothing: antialiased;
+    display: flex; justify-content: center; align-items: center;
+  }
+  .stage {
+    position: relative; width: 100%; max-width: 440px; height: 100dvh; max-height: 900px;
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(90deg, transparent 30px, var(--margin) 30px, var(--margin) 31.5px, transparent 31.5px),
+      repeating-linear-gradient(180deg, transparent 0 31px, var(--rule) 31px 32px);
+    box-shadow: 0 10px 40px rgba(29, 39, 51, .14);
+    overflow: hidden; display: flex; flex-direction: column;
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+  @media (min-height: 901px) { .stage { border-radius: 14px; } }
+
+  .top { display: flex; align-items: center; gap: 10px; padding: 14px 18px 0 44px; }
+  .brand { font: 400 15px var(--display); letter-spacing: .5px; color: var(--ink); }
+  .bar { flex: 1; height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
+  .bar i { display: block; height: 100%; width: 0; background: var(--pen); transition: width .35s ease; }
+  .count { font: 500 12px var(--body); color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+
+  .panels { position: relative; flex: 1; min-height: 0; }
+  .panel {
+    position: absolute; inset: 0; overflow-y: auto; -webkit-overflow-scrolling: touch;
+    padding: 18px 20px 24px 44px; display: flex; flex-direction: column; gap: 14px;
+    opacity: 0; visibility: hidden; transform: translateX(24px);
+    transition: opacity .3s ease, transform .3s ease, visibility 0s .3s;
+  }
+  .panel.on { opacity: 1; visibility: visible; transform: none; transition: opacity .3s ease, transform .3s ease; }
+  .panel.back { transform: translateX(-24px); }
+
+  .eyebrow { font: 700 12px var(--body); letter-spacing: .12em; color: var(--pen); }
+  h1, h2 { font: 400 32px/1.22 var(--display); margin: 0; text-wrap: balance; letter-spacing: -.2px; }
+  h2 { font-size: 27px; }
+  .hl { background: linear-gradient(transparent 58%, var(--hl) 58%, var(--hl) 92%, transparent 92%); padding: 0 2px; }
+  .pen { font: 400 26px/1.1 var(--pen-font); color: var(--pen); transform: rotate(-3deg); display: inline-block; }
+  .lead { margin: 0; color: var(--ink); font-size: 15.5px; }
+  .soft { color: var(--ink-soft); font-size: 13px; margin: 0; }
+  .note { font-size: 12px; color: var(--ink-soft); margin: 0; line-height: 1.55; }
+  b.red { color: var(--pen); }
+
+  /* P1 걱정 쪽지 */
+  .worries { display: flex; flex-wrap: wrap; gap: 8px; }
+  .worries span {
+    background: var(--chip); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px;
+    font-size: 14px; font-weight: 500; animation: pop .5s ease both;
+  }
+  .worries span:nth-child(odd) { transform: rotate(-1.5deg); }
+  .worries span:nth-child(even) { transform: rotate(1.2deg); }
+  @keyframes pop { from { opacity: 0; translate: 0 8px; } to { opacity: 1; translate: 0 0; } }
+
+  /* 숫자 비교 */
+  .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .duo > div { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 12px; min-width: 0; }
+  .duo .k { font-size: 12px; color: var(--ink-soft); }
+  .big { font: 400 44px/1 var(--display); font-variant-numeric: tabular-nums; }
+  .big small { font: 700 16px var(--body); margin-left: 2px; }
+  .dots { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 8px; }
+  .dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--line); display: block; }
+  .dots i.r { background: var(--pen); }
+  .dots.lg i { width: 11px; height: 11px; }
+
+  /* 점 분포 */
+  .strip { position: relative; height: 70px; margin: 6px 4px 0; }
+  .strip .axis { position: absolute; left: 0; right: 0; top: 34px; height: 2px; background: var(--ink); opacity: .2; }
+  .strip i { position: absolute; top: 28px; width: 13px; height: 13px; margin-left: -6.5px; border-radius: 50%;
+             background: var(--ink); opacity: .35; }
+  .strip i.end { background: var(--pen); opacity: 1; }
+  .strip .lab { position: absolute; top: 48px; font: 700 13px var(--body); transform: translateX(-50%); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .strip .tick { position: absolute; top: 0; font-size: 11px; color: var(--ink-soft); transform: translateX(-50%); }
+  .facts { display: grid; gap: 8px; }
+  .fact { display: flex; align-items: baseline; gap: 10px; background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; }
+  .fact .n { font: 400 30px/1 var(--display); color: var(--pen); min-width: 64px; font-variant-numeric: tabular-nums; }
+  .fact .n small { font: 700 14px var(--body); }
+
+  /* P5 수집 규모 */
+  .stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stats div { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+  .stats .big { font-size: 32px; white-space: nowrap; }
+  .stats .k { font-size: 12.5px; color: var(--ink-soft); }
+  .stamp { align-self: flex-start; border: 2.5px solid var(--pen); color: var(--pen); border-radius: 6px; padding: 3px 10px;
+           font: 400 17px var(--display); transform: rotate(-4deg); letter-spacing: 1px; }
+
+  /* 구 탭 + 표 */
+  .tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+  .tabs button { font: 700 13.5px var(--body); padding: 7px 13px; border-radius: 999px; border: 1.5px solid var(--ink);
+                 background: transparent; color: var(--ink); cursor: pointer; }
+  .tabs button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+  .tabs button:focus-visible, .nav button:focus-visible, .cta:focus-visible { outline: 3px solid var(--hl); outline-offset: 2px; }
+  .tbl { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; font-variant-numeric: tabular-nums; }
+  .tbl th { font: 700 12px var(--body); color: var(--ink-soft); text-align: right; padding: 8px 10px; border-bottom: 1.5px solid var(--ink); background: #f7f9fb; }
+  .tbl th:first-child, .tbl td:first-child { text-align: left; }
+  .tbl td { padding: 7px 10px; border-bottom: 1px solid var(--line); text-align: right; font-size: 14px; }
+  .tbl tr:last-child td { border-bottom: 0; }
+  .tbl .sex { font-size: 11px; color: var(--ink-soft); margin-left: 4px; }
+  .tbl .seat { font-weight: 900; color: var(--pen); }
+  .meter { display: inline-block; height: 6px; background: var(--hl); border-radius: 3px; vertical-align: middle; margin-right: 6px; }
+
+  .locked { position: relative; }
+  .locked .tbl td.bl { filter: blur(5px); user-select: none; }
+  .locked .tbl td.na { color: var(--ink-soft); font-size: 12px; }
+  .lock {
+    position: absolute; left: 50%; top: 55%; transform: translate(-50%, -50%) rotate(-2deg);
+    background: var(--ink); color: var(--paper); border-radius: 10px; padding: 10px 14px; text-align: center;
+    font: 700 13.5px/1.45 var(--body); box-shadow: 0 6px 20px rgba(29,39,51,.25); width: max-content; max-width: 84%;
+  }
+  .lock b { color: var(--hl); }
+  .gapline { background: #fff; border: 1.5px dashed var(--pen); border-radius: 10px; padding: 10px 12px; font-weight: 700; }
+  .gapline .big { font-size: 34px; color: var(--pen); }
+
+  /* P8 */
+  .promise { list-style: none; padding: 0; margin: 0; display: grid; gap: 8px; }
+  .promise li { background: #fff; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px 10px 38px; position: relative; font-weight: 500; }
+  .promise li::before { content: "✓"; position: absolute; left: 12px; top: 8px; font: 400 22px/1 var(--pen-font); color: var(--pen); }
+  .cta { display: block; text-align: center; text-decoration: none; background: var(--cta); color: var(--cta-ink);
+         font: 400 21px var(--display); padding: 15px 18px; border-radius: 12px; letter-spacing: .5px;
+         box-shadow: 0 6px 0 #0a5550; transition: transform .1s ease, box-shadow .1s ease; }
+  .cta:active { transform: translateY(4px); box-shadow: 0 2px 0 #0a5550; }
+  .cta small { display: block; font: 500 12px var(--body); opacity: .85; margin-top: 2px; letter-spacing: 0; }
+  .caveat { background: var(--hl-soft); border-radius: 10px; padding: 10px 12px; font-size: 12.5px; line-height: 1.6; }
+  .src { font-size: 11px; color: var(--ink-soft); line-height: 1.55; margin: 0; }
+
+  /* 하단 넘기기 */
+  .nav { display: flex; align-items: center; gap: 10px; padding: 10px 18px calc(12px + env(safe-area-inset-bottom, 0px)) 44px;
+         background: linear-gradient(transparent, var(--paper) 30%); }
+  .nav button { font: 700 15px var(--body); border-radius: 12px; cursor: pointer; border: 0; }
+  .prev { background: transparent; color: var(--ink-soft); padding: 12px 6px; }
+  .prev:disabled { visibility: hidden; }
+  .next { flex: 1; background: var(--ink); color: var(--paper); padding: 14px; font-size: 16px; }
+  .next .arr { display: inline-block; transition: transform .2s; }
+  .next:hover .arr { transform: translateX(3px); }
+  .next[hidden] { display: none; }
+  .hint { font: 400 20px var(--pen-font); color: var(--pen); text-align: center; flex: 1; }
+
+  @media (max-width: 360px) {
+    h1 { font-size: 28px; } h2 { font-size: 24px; } .big { font-size: 38px; }
+    .panel { padding-left: 40px; padding-right: 16px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .panel, .panel.on, .bar i, .worries span { transition: none; animation: none; }
+  }
+</style>
+</head>
+<body>
+<main class="stage" aria-live="polite">
+  <div class="top">
+    <span class="brand">학딩</span>
+    <span class="bar" aria-hidden="true"><i id="bar"></i></span>
+    <span class="count" id="count">1 / 8</span>
+  </div>
+
+  <div class="panels" id="panels">
+
+    <!-- 1. 혼란 -->
+    <section class="panel" data-i="1">
+      <div class="eyebrow">울산 중3 학부모님께</div>
+      <h1>고등학교 지망,<br><span class="hl">혼란스러우시죠?</span></h1>
+      <div class="worries">
+        <span>내신 5등급제</span><span>고교학점제</span><span>1등급은 상위 10%</span>
+        <span>A 받으면 1등급?</span><span>학교마다 시험이 다르다던데</span>
+        <span>큰 학교가 유리해?</span><span>1지망 어디 쓰지…</span>
+      </div>
+      <p class="lead">울산은 지망이 실제로 결과가 되는 곳입니다. 2026학년도 일반고 배정에서 <b>희망 배정률이 95.4%</b>였어요.</p>
+      <span class="pen">그래서 고르는 게 더 어렵죠</span>
+      <p class="note">출처: 헤럴드경제 2026-01-22, 울산 2026학년도 일반고 배정 결과</p>
+    </section>
+
+    <!-- 2. 후킹: 1등급 자리 -->
+    <section class="panel" data-i="2">
+      <div class="eyebrow">궁금증 ①</div>
+      <h2>같은 1등급인데,<br><span class="hl">자리 수</span>는 학교마다 다릅니다</h2>
+      <p class="lead">5등급제에서 1등급은 과목별 <b>상위 10%</b>. 학생이 적으면 1등급 자리도 적습니다.</p>
+      <div class="duo">
+        <div><div class="k">고1이 101명인 학교</div><div class="big">10<small>자리</small></div><div class="dots" id="dotsS"></div></div>
+        <div><div class="k">고1이 393명인 학교</div><div class="big">39<small>자리</small></div><div class="dots" id="dotsL"></div></div>
+      </div>
+      <span class="pen">최대 4배 차이!</span>
+      <p class="lead">그럼 큰 학교가 유리할까요? 경쟁자도 4배입니다. <b class="red">우리 아이가 갈 학교는 몇 자리일까요?</b></p>
+    </section>
+
+    <!-- 3. 후킹: A ≠ 1등급 -->
+    <section class="panel" data-i="3">
+      <div class="eyebrow">궁금증 ②</div>
+      <h2>"A 받았으니 1등급이겠지?"<br><span class="hl">아닐 수 있습니다</span></h2>
+      <p class="lead">울산 어느 일반고 1학년 <b>통합사회</b>. 220명 중 <b>45.9%가 A</b>를 받았어요.</p>
+      <div class="duo">
+        <div><div class="k">A 받은 학생</div><div class="big">101<small>명</small></div></div>
+        <div><div class="k">그중 1등급</div><div class="big" style="color:var(--pen)">22<small>명</small></div></div>
+      </div>
+      <div class="dots lg" id="dotsA" aria-label="A 받은 101명 중 1등급 22명"></div>
+      <p class="lead">성취도 A(90점 이상)와 석차 1등급(상위 10%)은 <b>다른 잣대</b>입니다. 울산 일반고 40곳 중 <b>36곳</b>은 통합사회 A 비율이 10%를 넘어요.</p>
+      <span class="pen">A인데 2등급…?</span>
+    </section>
+
+    <!-- 4. 후킹: 시험 난이도 -->
+    <section class="panel" data-i="4">
+      <div class="eyebrow">궁금증 ③</div>
+      <h2>같은 '공통수학1',<br>학교 평균이 <span class="hl">17.8점</span> 차이</h2>
+      <p class="soft">울산 일반고 36곳의 1학년 1학기 수학 평균 (점 하나 = 학교 하나)</p>
+      <div class="strip" id="strip" role="img" aria-label="수학 평균 62.9점부터 80.7점까지 분포"></div>
+      <div class="facts">
+        <div class="fact"><span class="n">11<small>곳</small></span><span>수학 <b>D·E가 절반이 넘는</b> 학교</span></div>
+        <div class="fact"><span class="n">6<small>곳</small></span><span>수학 <b>A가 5%도 안 되는</b> 학교</span></div>
+      </div>
+      <p class="lead">시험이 어려운 학교일까요, 경쟁이 센 학교일까요? <b class="red">우리 아이에게는 어느 쪽이 나을까요?</b></p>
+      <p class="note">평균과 성취도 분포가 서로 맞지 않는 4곳은 공시 확인이 필요해 이 비교에서 뺐습니다.</p>
+    </section>
+
+    <!-- 5. 자료 취합 -->
+    <section class="panel" data-i="5">
+      <div class="eyebrow">그래서 직접 모았습니다</div>
+      <h2>울산 일반고 40곳,<br><span class="hl">고1 성적표</span>를<br>전부 열어봤습니다</h2>
+      <span class="stamp">울산 전수 조사</span>
+      <div class="stats">
+        <div><div class="big">40<small>곳</small></div><div class="k">울산 일반고 전체</div></div>
+        <div><div class="big">8,401<small>명</small></div><div class="k">2026학년도 고1</div></div>
+        <div><div class="big">5<small>개</small></div><div class="k">구·군 (남·동·북·울주·중)</div></div>
+        <div><div class="big">5<small>과목</small></div><div class="k">국·수·영·통합사회·통합과학</div></div>
+      </div>
+      <p class="lead">학교알리미에서 학교마다 보안문자를 하나하나 입력해 가며 모았습니다. 대형 입시업체 자료에는 없는 <b>울산 학교 단위</b> 숫자예요.</p>
+      <p class="note">특성화고·마이스터고·특목고·자사고는 학교 성격이 달라 비교에서 뺐습니다.</p>
+    </section>
+
+    <!-- 6. 짠: 학생 수 공개 -->
+    <section class="panel" data-i="6">
+      <div class="eyebrow">짠! 일부 먼저 공개합니다</div>
+      <h2>우리 구 고1은 몇 명,<br><span class="hl">1등급 자리</span>는 몇 개?</h2>
+      <div class="tabs" role="group" aria-label="구·군 선택" data-tabs></div>
+      <div style="overflow-x:auto">
+        <table class="tbl"><thead><tr><th>학교</th><th>고1 학생</th><th>1등급 자리</th></tr></thead><tbody id="openBody"></tbody></table>
+      </div>
+      <p class="note">1등급 자리 = 고1 학생 수 × 10% 어림값. 실제로는 과목 수강자 수와 동점자 처리에 따라 조금 달라집니다. 학생 수: 학교알리미 2026년 5월 공시.</p>
+    </section>
+
+    <!-- 7. 성적 (블러) -->
+    <section class="panel" data-i="7">
+      <div class="eyebrow">여기부터가 진짜입니다</div>
+      <h2>우리 구 학교별<br><span class="hl">수학 성적</span></h2>
+      <div class="tabs" role="group" aria-label="구·군 선택" data-tabs></div>
+      <div class="gapline"><span id="gapGu">남구</span> 안에서도 수학 평균이 <span class="big" id="gapVal">11.5</span>점 차이</div>
+      <div class="locked">
+        <div style="overflow-x:auto">
+          <table class="tbl"><thead><tr><th>학교</th><th>평균</th><th>A 비율</th><th>D+E 비율</th></tr></thead><tbody id="blurBody"></tbody></table>
+        </div>
+        <div class="lock">학교 이름과 5과목 전체 표는<br><b>학딩</b>에서 공개합니다</div>
+      </div>
+      <p class="note">2026학년도 1학기 공통수학1. 학교 이름은 이 페이지에 들어 있지 않습니다.</p>
+    </section>
+
+    <!-- 8. CTA -->
+    <section class="panel" data-i="8">
+      <div class="eyebrow">학교 이름까지 확인하세요</div>
+      <h2>1지망 쓰기 전에,<br><span class="hl">학딩</span>에서 보고 가세요</h2>
+      <ul class="promise">
+        <li>울산 일반고 40곳 학교 이름 공개</li>
+        <li>국·수·영·통합사회·통합과학 평균, A 비율, D+E 비율</li>
+        <li>학교별 고1 학생 수와 1등급 자리</li>
+        <li>2·3학년 개설 선택과목 (원하는 과목을 우리 학교에서 들을 수 있는지)</li>
+      </ul>
+      <a class="cta" href="https://hakding-app.github.io/hakding/#/library" target="_blank" rel="noopener">학딩자료실 바로가기 →<small>hakding-app.github.io/hakding</small></a>
+      <div class="caveat"><b>읽을 때 주의할 점</b><br>평균이 높다고 공부 잘하는 학교라는 뜻은 아닙니다. 학교마다 시험이 다르기 때문이에요. 올해 고1 숫자가 내년 신입생에게 그대로 이어지지도 않습니다. 그래서 학딩은 학교 순위를 만들지 않습니다.</div>
+      <p class="src">출처: 학교알리미 '교과별 학업성취 사항' 2026년 9월 공시(2026학년도 1학기), '학년별·학급별 학생수' 2026년 5월 공시. 공공누리 출처표시. 비교 대상: 울산 일반고 40곳(특성화·특목·자사고 제외).</p>
+    </section>
+  </div>
+
+  <nav class="nav">
+    <button class="prev" id="prev" type="button">← 이전</button>
+    <button class="next" id="next" type="button">다음 <span class="arr">→</span></button>
+    <span class="hint" id="end" hidden>위 버튼을 눌러 학딩으로 ↑</span>
+  </nav>
+</main>
+
+<script>
+// 학교 이름이 있는 자료는 학생 수뿐입니다. 성적 자료는 학교 이름 없이, 순서도 섞어서 넣었습니다.
+const OPEN = {"남구":[["대현고",200,20,"남"],["무거고",137,14,"공학"],["문수고",146,15,"공학"],["삼산고",214,21,"공학"],["성광여고",137,14,"여"],["신선여고",221,22,"여"],["신정고",229,23,"남"],["우신고",102,10,"공학"],["울산강남고",218,22,"공학"],["울산여고",256,26,"여"],["울산제일고",101,10,"남"],["학성고",213,21,"남"]],"동구":[["남목고",225,22,"공학"],["대송고",259,26,"공학"],["문현고",205,20,"공학"],["방어진고",255,26,"공학"],["현대고",230,23,"공학"],["화암고",188,19,"공학"]],"북구":[["강동고",151,15,"공학"],["달천고",276,28,"공학"],["매곡고",283,28,"공학"],["무룡고",248,25,"공학"],["울산동천고",269,27,"공학"],["호계고",393,39,"공학"],["화봉고",220,22,"공학"],["효정고",144,14,"공학"]],"울주군":[["남창고",321,32,"공학"],["범서고",327,33,"공학"],["언양고",159,16,"공학"],["온산고",125,12,"공학"],["울산경의고",146,15,"공학"],["천상고",342,34,"공학"]],"중구":[["다운고",133,13,"공학"],["성신고",220,22,"공학"],["약사고",217,22,"공학"],["울산가온고",163,16,"공학"],["울산고",211,21,"남"],["울산중앙고",170,17,"공학"],["학성여고",152,15,"여"],["함월고",195,20,"공학"]]};
+const BLUR = {"남구":{"rows":[[72.0,11.0,43.0],[74.4,16.3,36.2],[70.9,23.0,24.2],[74.1,24.8,35.6],[70.3,23.9,30.0],[68.0,9.7,51.3],[73.1,18.0,36.0],[69.3,21.2,27.0],[67.9,4.5,50.3],[74.1,11.6,34.1],[62.9,0.7,68.3],[74.3,14.9,33.9]],"gap":11.5},"동구":{"rows":[null,[80.6,20.8,15.3],[66.4,11.8,34.2],[80.7,29.4,21.0],[65.8,10.2,64.2],[71.3,7.9,42.8]],"gap":14.9},"북구":{"rows":[[73.9,12.4,35.8],null,[72.7,12.9,41.8],null,[65.8,7.4,53.7],[68.7,4.1,55.8],[69.6,10.5,47.9],[69.5,8.1,46.8]],"gap":8.1},"울주군":{"rows":[[75.4,20.4,29.6],[69.9,10.1,45.3],[74.1,10.7,31.8],[70.4,4.3,43.7],[64.1,11.7,57.1],[66.4,4.0,58.5]],"gap":11.3},"중구":{"rows":[[67.0,3.6,53.0],[74.2,9.5,33.3],[68.8,10.5,51.2],[68.9,8.1,50.5],[72.2,11.8,36.8],[71.8,11.1,38.1],null,[74.6,15.7,13.0]],"gap":7.6}};
+const GUS = Object.keys(OPEN);
+const $ = id => document.getElementById(id);
+const panels = [...document.querySelectorAll(".panel")];
+const N = panels.length;
+let cur = 0, gu = "남구";
+
+// 점 그림
+const dots = (el, n, red) => { el.innerHTML = Array.from({ length: n }, (_, i) => `<i class="${i < red ? "r" : ""}"></i>`).join(""); };
+dots($("dotsS"), 10, 10);
+dots($("dotsL"), 39, 39);
+dots($("dotsA"), 101, 22);
+
+// 수학 평균 분포 (학교 이름 없음)
+(() => {
+  const vals = Object.values(BLUR).flatMap(g => g.rows.filter(Boolean).map(r => r[0]));
+  const lo = 60, hi = 82, pos = v => ((v - lo) / (hi - lo) * 100).toFixed(2) + "%";
+  const mn = Math.min(...vals), mx = Math.max(...vals);
+  let h = '<div class="axis"></div>';
+  for (const t of [60, 65, 70, 75, 80]) h += `<span class="tick" style="left:${pos(t)}">${t}점</span>`;
+  for (const v of vals) h += `<i class="${v === mn || v === mx ? "end" : ""}" style="left:${pos(v)}"></i>`;
+  h += `<span class="lab" style="left:${pos(mn)}">${mn}점</span><span class="lab" style="left:${pos(mx)};color:var(--pen)">${mx}점</span>`;
+  $("strip").innerHTML = h;
+})();
+
+// 구 탭
+function renderGu() {
+  document.querySelectorAll("[data-tabs]").forEach(box => {
+    box.innerHTML = GUS.map(g => `<button type="button" aria-pressed="${g === gu}" data-gu="${g}">${g}</button>`).join("");
+  });
+  const rows = OPEN[gu], maxN = 393;
+  $("openBody").innerHTML = rows.map(([n, s, seat, sex]) =>
+    `<tr><td>${n}<span class="sex">${sex === "공학" ? "" : sex}</span></td><td><span class="meter" style="width:${Math.round(s / maxN * 46)}px"></span>${s}명</td><td class="seat">${seat}자리</td></tr>`).join("");
+  $("blurBody").innerHTML = BLUR[gu].rows.map((r, i) => r
+    ? `<tr><td class="bl">${"■".repeat(3 + (i % 3))}고</td><td class="bl">${r[0].toFixed(1)}</td><td class="bl">${r[1].toFixed(1)}%</td><td class="bl">${r[2].toFixed(1)}%</td></tr>`
+    : `<tr><td class="bl">${"■".repeat(4)}고</td><td class="na" colspan="3">공시 확인 중</td></tr>`).join("");
+  $("gapGu").textContent = gu;
+  $("gapVal").textContent = BLUR[gu].gap;
+}
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-gu]");
+  if (b) { gu = b.dataset.gu; renderGu(); }
+});
+renderGu();
+
+// 넘기기
+function go(i, dir) {
+  i = Math.max(0, Math.min(N - 1, i));
+  panels.forEach((p, k) => {
+    p.classList.toggle("on", k === i);
+    p.classList.toggle("back", k < i);
+  });
+  cur = i;
+  panels[i].scrollTop = 0;
+  $("bar").style.width = ((i + 1) / N * 100) + "%";
+  $("count").textContent = `${i + 1} / ${N}`;
+  $("prev").disabled = i === 0;
+  $("next").hidden = i === N - 1;
+  $("end").hidden = i !== N - 1;
+  if (history.replaceState) history.replaceState(null, "", i ? "#" + (i + 1) : location.pathname + location.search);
+}
+$("next").onclick = () => go(cur + 1);
+$("prev").onclick = () => go(cur - 1);
+document.addEventListener("keydown", e => {
+  if (e.key === "ArrowRight" || e.key === "PageDown") go(cur + 1);
+  if (e.key === "ArrowLeft" || e.key === "PageUp") go(cur - 1);
+});
+let sx = null, sy = null;
+$("panels").addEventListener("touchstart", e => { sx = e.touches[0].clientX; sy = e.touches[0].clientY; }, { passive: true });
+$("panels").addEventListener("touchend", e => {
+  if (sx === null) return;
+  const dx = e.changedTouches[0].clientX - sx, dy = e.changedTouches[0].clientY - sy;
+  if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) go(cur + (dx < 0 ? 1 : -1));
+  sx = null;
+}, { passive: true });
+go(Math.max(0, (parseInt(location.hash.slice(1), 10) || 1) - 1));
+</script>
+</body>
+</html>
