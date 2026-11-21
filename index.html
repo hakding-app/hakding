@@ -257,6 +257,17 @@ nav.tabs .lbl-d{display:none}
 .lib-lock .fade{max-height:170px;overflow:hidden;-webkit-mask-image:linear-gradient(#000 20%,transparent);mask-image:linear-gradient(#000 20%,transparent);filter:blur(1.5px);pointer-events:none;user-select:none}
 .lib-gate{border:1px solid var(--line);background:var(--card);border-radius:16px;padding:20px;display:flex;flex-direction:column;gap:10px;align-items:center;text-align:center}
 .lib-gate h2{font-size:19px}
+.notice-row{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:0;border-top:1px solid var(--line);padding:10px 0;cursor:pointer;font:inherit;color:inherit}
+.notice-row:first-child{border-top:0}
+.notice-row .t{flex:1;min-width:0;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.notice-row:hover .t{color:var(--brand)}
+.notice-row .badge{flex:none}
+.notice-row .xs{flex:none}
+.file-tease{background:var(--accent-l);border-radius:10px;padding:8px 12px;font-size:14px;word-break:break-all}
+.file-card{display:flex;align-items:center;gap:12px;border:1px solid var(--line);background:var(--card);border-radius:14px;padding:14px 16px}
+.file-card b{word-break:break-all}
+.file-card>svg{flex:none;width:28px;height:28px;color:var(--brand)}
+.file-pick{display:flex;flex-direction:column;gap:6px;border:1px dashed var(--line);border-radius:12px;padding:12px}
 .lib-cats{display:flex;gap:8px;flex-wrap:wrap}
 .lib-cats button{height:38px;padding:0 16px;border-radius:19px;border:1px solid var(--line2);background:var(--card);font-weight:600;font-size:14px;color:var(--ink2);cursor:pointer}
 .lib-cats button.on{border-color:var(--brand);background:var(--brand-l);color:var(--brand-d)}
@@ -882,6 +893,7 @@ function vHome() {
       ${S.user ? `<button class="btn lg block" data-act="nav" data-v="gate">기여하고 전체 이용하기</button>` : `<button class="btn lg block" data-act="login">구글로 1초 가입</button>`}
     </section>
     ${statsStrip()}
+    ${noticeHtml("")}
     <section class="card">
       <div class="row between"><h2>분야별 학원 TOP 3</h2><button class="link" data-act="nav" data-v="match">맞춤 학원 찾기</button></div>
       <div id="t3">${top3Html()}</div>
@@ -910,6 +922,7 @@ function vHome() {
       <input class="input" name="q" placeholder="학원 이름으로 검색" value="${esc(S.ui.q)}" aria-label="학원 검색">
       <button class="btn" type="submit" style="flex:none;white-space:nowrap">검색</button>
     </form>
+    ${noticeHtml("wide")}
     <section class="card">
       <div class="row between"><h2>분야별 학원 TOP 3</h2><button class="link" data-act="nav" data-v="match">맞춤 학원</button></div>
       <div id="t3">${top3Html()}</div>
@@ -1736,6 +1749,16 @@ function guessCol(k, h) {
    글은 관리자만 씀
    ===================================================================== */
 let libLoading = false;
+// 홈 화면 공지사항: 자료실 '공지' 분야 최신 3개 (없으면 칸을 안 그림)
+function noticeHtml(cls) {
+  if (!S.data.library) { loadLibrary(); return ""; }
+  const L = S.data.library.filter((p) => libCat(p) === "공지" && !p.hidden).slice(0, 3);
+  if (!L.length) return "";
+  return `<section class="card notice-box ${cls}">
+    <div class="row between"><h2>공지사항</h2><button class="link" data-act="libCatGo" data-c="공지">전체</button></div>
+    <div class="col" style="gap:0">${L.map((p) => `<button class="notice-row" data-act="nav" data-v="post" data-p="${esc(p.id)}"><span class="badge brand">공지</span><span class="t">${esc(p.title)}</span><span class="xs muted">${ago(p.createdAt)}</span></button>`).join("")}</div>
+  </section>`;
+}
 function loadLibrary() {
   if (libLoading) return;
   libLoading = true;
@@ -1814,7 +1837,7 @@ function libGate(p) {
   if (!S.user) { msg = "구글로 1초 가입하고 계속 보세요"; btn = `<button class="btn lg block" data-act="libLogin" data-id="${esc(p.id)}">구글로 가입하고 계속 보기</button>`; }
   else { msg = "보내본 학원 후기 1개를 남기면 열려요"; btn = `<button class="btn lg block" data-act="libGateGo" data-id="${esc(p.id)}">후기 남기고 계속 보기</button>`; }
   return `<div class="lib-lock">${LIB_FADE}</div>
-    <div class="lib-gate">${icon.lock}<h2>${msg}</h2><p class="small muted">이 다음 내용은 ${p.level === "gate" ? "후기를 남긴 회원" : "학딩 회원"}에게만 보여요. 아이 이름·학교·사진은 받지 않아요.</p>${btn}</div>`;
+    <div class="lib-gate">${icon.lock}<h2>${msg}</h2>${p.file ? `<p class="file-tease">📎 ${fileKind(p.file.name)} 자료 <b>${esc(p.file.name)}</b> (${fileSize(p.file.size)})도 함께 드려요</p>` : ""}<p class="small muted">이 다음 내용은 ${p.level === "gate" ? "후기를 남긴 회원" : "학딩 회원"}에게만 보여요. 아이 이름·학교·사진은 받지 않아요.</p>${btn}</div>`;
 }
 function vPost() {
   if (!S.data.library) { loadLibrary(); return LOADING; }
@@ -1826,15 +1849,15 @@ function vPost() {
   if (libCanRead(p)) {
     const f = S.data.postFull[fullKey(p.id)];
     if (f === undefined) loadFull(p.id);
-    rest = f ? show(f.body) : f === false ? `<div class="notice">${icon.info}<span>뒷부분을 불러오지 못했어요. 새로고침해 주세요.</span></div>` : LOADING;
+    rest = f ? show(f.body) + (p.file ? fileCard(p) : "") : f === false ? `<div class="notice">${icon.info}<span>뒷부분을 불러오지 못했어요. 새로고침해 주세요.</span></div>` : LOADING;
   } else rest = p.hasBody === false ? "" : libGate(p);   // 뒷부분이 없는 글(공지 등)은 가입벽 없이 끝
   return `<article class="post col" style="gap:14px">
-    <div class="crumb"><button class="link" data-act="nav" data-v="library">학딩자료실</button><span>/</span><button class="link" data-act="libCatGo" data-c="${esc(libCat(p))}">${esc(libCat(p))}</button></div>
+    <div class="row between" style="gap:8px"><div class="crumb"><button class="link" data-act="nav" data-v="library">학딩자료실</button><span>/</span><button class="link" data-act="libCatGo" data-c="${esc(libCat(p))}">${esc(libCat(p))}</button></div>
+      ${S.admin ? `<div class="row" style="gap:6px;flex:none"><button class="btn ghost sm" data-act="nav" data-v="postEdit" data-p="${esc(p.id)}">수정</button><button class="btn danger sm" data-act="postDel" data-id="${esc(p.id)}">삭제</button></div>` : ""}</div>
     <div class="col" style="gap:6px"><h1>${esc(p.title)}</h1><span class="small muted">${ago(p.createdAt)}${p.updatedAt && p.updatedAt - (p.createdAt || 0) > 6e4 ? " (수정됨)" : ""} · 조회수 <b>${(p.views || 0).toLocaleString()}</b></span></div>
     ${(p.summary || []).length ? `<div class="sum"><b>핵심 요약</b><ul>${p.summary.map((s) => `<li>${esc(s)}</li>`).join("")}</ul></div>` : ""}
     ${show(p.teaser)}
     ${rest}
-    ${S.admin ? `<div class="row" style="gap:8px;justify-content:flex-end"><button class="btn danger sm" data-act="postDel" data-id="${esc(p.id)}">삭제</button><button class="btn ghost sm" data-act="nav" data-v="postEdit" data-p="${esc(p.id)}">수정</button></div>` : ""}
     ${commentsHtml(p)}
   </article>`;
 }
@@ -1959,9 +1982,34 @@ function vPostEdit() {
     <div class="f-ed"><b>앞부분</b> <span class="hint">누구나 보는 부분 · 맘카페에서 넘어온 분이 가입 전에 읽어요</span><div class="ed" id="edTeaser"></div>${tools("teaser")}</div>
     <div class="f-ed"><b>뒷부분</b> <span class="hint">회원만 보는 부분 · 학교 이름이 들어간 표 같은 중요한 내용 · 공지처럼 숨길 내용이 없으면 비워 두세요(가입 안내가 안 떠요)</span><div class="ed tall" id="edBody"></div>${tools("body")}</div>
     <p class="small muted">사진은 GitHub 저장소에 올린 뒤 그 주소(https://…)를 🖼 버튼으로 넣어요. 예) https://hakding-app.github.io/hakding/img/card1.png · 동영상은 ▶ 버튼에 유튜브 주소를 넣어요.</p>
+    ${fileField(id, e)}
     <label class="check"><input type="checkbox" name="hidden" ${e.hidden ? "checked" : ""}>숨기기 (관리자만 보여요)</label>
     <div class="row" style="gap:8px"><button class="btn ghost" type="button" data-act="postCancel" data-id="${esc(id || "")}">취소</button><button class="btn lg grow" type="submit">${id ? "저장" : "올리기"}</button></div>
   </form>`;
+}
+
+/* ---------- 첨부 파일 (회원 전용): Storage 대신 libraryFiles 문서에 base64로 저장, 읽기 규칙은 뒷부분과 같음 ---------- */
+const FILE_MAX = 700 * 1024;   // base64로 늘어나도 Firestore 문서 한도(1MB) 안
+const FILE_ACCEPT = ".xlsx,.xls,.csv,.pdf,.hwp,.hwpx,.docx,.pptx,.zip";
+const fileSize = (n) => (n >= 1024 * 1024 ? (n / 1048576).toFixed(1) + "MB" : Math.max(1, Math.round(n / 1024)) + "KB");
+const fileKind = (name) => (/\.(xlsx?|csv)$/i.test(name) ? "엑셀" : /\.pdf$/i.test(name) ? "PDF" : "첨부");
+function fileField(id, e) {
+  const key = id || "new", pick = S.ui.postFile && S.ui.postFile.key === key ? S.ui.postFile : null;
+  const cur = pick ? `<b>${esc(pick.name)}</b> (${fileSize(pick.size)}) · 저장하면 올라가요`
+    : e.file ? `지금 첨부: <b>${esc(e.file.name)}</b> (${fileSize(e.file.size)}) <label class="check" style="display:inline-flex;margin-left:8px"><input type="checkbox" name="fileDel">첨부 지우기</label>` : "첨부 없음";
+  return `<div class="f-ed"><b>첨부 파일</b> <span class="hint">회원 전용 · 뒷부분을 볼 수 있는 회원만 받아요 · ${fileSize(FILE_MAX)}까지 · GitHub에 올리지 않아도 돼요</span>
+    <div class="file-pick"><input type="file" name="file" accept="${FILE_ACCEPT}"><span class="small muted">${cur}</span></div></div>`;
+}
+function readFile(file, key) {
+  if (!file) return;
+  if (file.size > FILE_MAX) { toast(`파일이 너무 커요 (${fileSize(FILE_MAX)}까지)`); return; }
+  const r = new FileReader();
+  r.onload = () => { S.ui.postFile = { key, name: file.name.slice(0, 120), size: file.size, type: file.type || "application/octet-stream", b64: String(r.result).split(",")[1] || "" }; saveDraft(); render(); };
+  r.onerror = () => toast("파일을 읽지 못했어요");
+  r.readAsDataURL(file);
+}
+function fileCard(p) {
+  return `<div class="file-card">${icon.book}<div class="grow"><b>${esc(p.file.name)}</b><div class="small muted">${fileKind(p.file.name)} 자료 · ${fileSize(p.file.size)} · 학딩 회원 전용</div></div><button class="btn sm" data-act="libFile" data-id="${esc(p.id)}">${fileKind(p.file.name)} 받기</button></div>`;
 }
 
 /* ---------- 꾸미기 편집기 (Quill, 관리자 글쓰기 화면에서만 불러옴) ---------- */
@@ -1991,6 +2039,7 @@ function saveDraft() {
 function initEditors() {
   const form = $('[data-form="post"]'); if (!form || form._ed) return;
   form._ed = true; EDITORS = {};
+  form.file.addEventListener("change", (ev) => { ev.stopPropagation(); readFile(ev.target.files[0], form.dataset.id || "new"); });
   const init = EDITOR_INIT || { teaser: "", body: "" };
   loadQuill().then(() => {
     if (!document.body.contains(form)) return;
@@ -2054,10 +2103,23 @@ const A = {
   nav: (d) => go(d.v, d.p),
   libLogin: (d) => { setReturn("post", d.id); return A.login(); },
   libGateGo: (d) => { setReturn("post", d.id); go("gate"); },
+  // 회원 전용 첨부: 누를 때만 불러옴 (읽기 권한은 Firestore 규칙이 뒷부분과 똑같이 막음)
+  async libFile(d) {
+    let f;
+    try { f = await BE.db.get("libraryFiles", d.id); } catch (e) { f = null; }
+    if (!f || !f.b64) { toast("파일을 받을 수 없어요. 로그인 상태를 확인해 주세요"); return; }
+    const bin = atob(f.b64), buf = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i++) buf[i] = bin.charCodeAt(i);
+    const url = URL.createObjectURL(new Blob([buf], { type: f.type || "application/octet-stream" }));
+    const a = document.createElement("a"); a.href = url; a.download = f.name || "학딩자료"; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    toast("내려받기를 시작했어요");
+  },
   async postDel(d) {
     if (!(await ask("이 자료를 지울까요?\n댓글도 함께 지워지고, 되돌릴 수 없어요.", "지우기", true))) return;
     const cs = await BE.db.list("libComments", ["postId", "==", d.id]).catch(() => []);
     for (const c of cs) await BE.db.del("libComments", c.id).catch(() => {});
+    await BE.db.del("libraryFiles", d.id).catch(() => {});
     await BE.db.del("libraryFull", d.id).catch(() => {}); await BE.db.del("library", d.id);
     S.data.library = null; delete S.data.cmts[d.id]; toast("자료를 지웠어요"); go("library");
   },
@@ -2065,7 +2127,7 @@ const A = {
   libCatGo: (d) => { S.ui.libCat = d.c; go("library"); },
   async postCancel(d) {
     if (S.ui.postDraft && !(await ask("작성 중인 내용을 버리고 나갈까요?", "나가기"))) return;
-    S.ui.postDraft = null; if (d.id) go("post", d.id); else go("library");
+    S.ui.postDraft = null; S.ui.postFile = null; if (d.id) go("post", d.id); else go("library");
   },
   edTable(d) {
     const q = EDITORS[d.ed]; if (!q) return;
@@ -2438,13 +2500,18 @@ const F = {
     // 편집기 내용은 저장할 때 한 번 더 걸러 둠 (붙여 넣은 사진 파일·스크립트 등 제거). 글 한 편은 Firestore 문서 한도(1MB) 안에서
     const teaser = cleanHtml(EDITORS.teaser.root.innerHTML), body = cleanHtml(EDITORS.body.root.innerHTML);
     if (teaser.length > 200000 || body.length > 600000) { toast("글이 너무 길어요. 나눠서 올려 주세요"); return; }
-    const hasBody = !!EDITORS.body.getText().trim() || /<(img|iframe|table)\b/i.test(body);
-    const meta = { title: clip(fd.get("title"), 80), category: LIB_CATS.includes(fd.get("category")) ? fd.get("category") : "공지", summary, teaser, fmt: "html", hasBody, level: fd.get("level") === "gate" ? "gate" : "member", hidden: fd.get("hidden") === "on", updatedAt: now() };
+    const pick = S.ui.postFile && S.ui.postFile.key === (id || "new") ? S.ui.postFile : null;
+    const old = id && S.data.library ? (S.data.library.find((x) => x.id === id) || {}).file || null : null;
+    const file = pick ? { name: pick.name, size: pick.size } : fd.get("fileDel") === "on" ? null : old;
+    const hasBody = !!EDITORS.body.getText().trim() || /<(img|iframe|table)\b/i.test(body) || !!file;   // 첨부만 있어도 가입 안내가 떠야 함
+    const meta = { title: clip(fd.get("title"), 80), category: LIB_CATS.includes(fd.get("category")) ? fd.get("category") : "공지", summary, teaser, fmt: "html", hasBody, file, level: fd.get("level") === "gate" ? "gate" : "member", hidden: fd.get("hidden") === "on", updatedAt: now() };
     let pid = id;
     if (id) await BE.db.update("library", id, meta);
     else pid = await BE.db.add("library", { ...meta, views: 0, createdAt: now() });
     await BE.db.set("libraryFull", pid, { body, updatedAt: now() });
-    S.ui.postDraft = null; S.data.library = null; S.data.postFull = {};
+    if (pick) await BE.db.set("libraryFiles", pid, { name: pick.name, type: pick.type, size: pick.size, b64: pick.b64, updatedAt: now() });
+    else if (!file && old) await BE.db.del("libraryFiles", pid).catch(() => {});
+    S.ui.postDraft = null; S.ui.postFile = null; S.data.library = null; S.data.postFull = {};
     toast(id ? "저장했어요" : "자료를 올렸어요"); go("post", pid);
   },
   async cmt(form, fd) {
