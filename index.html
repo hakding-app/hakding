@@ -234,6 +234,11 @@ footer.foot button{background:none;border:0;color:var(--ink3);text-decoration:un
 .lib-item:hover{border-color:var(--brand)}
 .lib-item b{font-size:16.5px}
 .post{max-width:720px;width:100%;margin:0 auto}
+article.post{background:var(--card);border-radius:18px;padding:22px 20px 24px}
+@media (min-width:900px){article.post{padding:32px 36px 36px}}
+/* 메뉴 이름: 휴대폰 아래 메뉴는 짧게(자료실), PC 왼쪽 메뉴는 전체(학딩자료실) */
+nav.tabs .lbl-d{display:none}
+@media (min-width:900px){nav.tabs .lbl-d{display:inline}nav.tabs .lbl-m{display:none}}
 .post h1{font-size:23px;line-height:1.35}
 .post .sum{background:var(--brand-l);border-radius:14px;padding:12px 16px;color:#0B4848}
 .post .sum ul{margin:6px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:3px}
@@ -323,7 +328,7 @@ const CONFIG = {
   appCheckSiteKey: "",                         // reCAPTCHA v3 사이트 키 (선택, 권장)
   adminEmails: ["igkim822@gmail.com"],         // firestore.rules 의 관리자 이메일과 같게
   city: "우리 동네",                            // 예: "울산" — 화면 문구에 사용
-  giftText: "매월 좋아요를 가장 많이 받은 학부모님께 [감사 선물]을 드려요",
+  giftText: "",                                // 선물이 정해지면 문구를 넣음 (예: "매월 좋아요를 가장 많이 받은 학부모님께 [감사 선물]을 드려요"). 비우면 화면에 안 보임
   policyVersion: "2026-11-08",
   contactEmail: "[운영자 연락 이메일]"
 };
@@ -832,7 +837,7 @@ function renderApp() {
       <footer class="foot"><span>© 2026 학딩 · since 2026</span><button data-act="nav" data-v="privacy">개인정보 처리방침</button></footer>
     </main>
     <nav class="tabs" aria-label="주요 메뉴">
-      ${[["home", "홈", icon.home], ["academies", "학원", icon.acad], ["match", "맞춤 학원", icon.spark], ["rides", "라이딩", icon.car], ["schedule", "내 일정", icon.cal], ["library", "학딩자료실", icon.book]].map(([k, l, i]) => `<button class="${tab === k ? "on" : ""}" data-act="nav" data-v="${k}" ${tab === k ? 'aria-current="page"' : ""}>${i}${l}</button>`).join("")}
+      ${[["home", "홈", icon.home], ["academies", "학원", icon.acad], ["match", "맞춤 학원", icon.spark], ["rides", "라이딩", icon.car], ["schedule", "내 일정", icon.cal], ["library", '<span class="lbl-m">자료실</span><span class="lbl-d">학딩자료실</span>', icon.book]].map(([k, l, i]) => `<button class="${tab === k ? "on" : ""}" data-act="nav" data-v="${k}" ${tab === k ? 'aria-current="page"' : ""}>${i}${l}</button>`).join("")}
     </nav>`;
   afterRender();
 }
@@ -913,7 +918,7 @@ function vHome() {
       <div class="row between"><h2>이달의 기여 TOP 5</h2>
         <div class="tabbar" style="width:150px"><button class="${S.ui.rankMode === "month" ? "on" : ""}" data-act="rank" data-m="month">이번 달</button><button class="${S.ui.rankMode === "all" ? "on" : ""}" data-act="rank" data-m="all">전체</button></div>
       </div>
-      <p class="small muted">${esc(CONFIG.giftText)}</p>
+      ${CONFIG.giftText ? `<p class="small muted">${esc(CONFIG.giftText)}</p>` : ""}
       <div>${rk.map((x, i) => `<div class="rank"><span class="n">${i + 1}</span><span class="grow" style="font-weight:600">${esc(x.uid === S.user.uid ? x.nick : maskNick(x.nick))}</span><span class="row small" style="gap:4px;color:#C2410C">${icon.heartFill}<b>${x.likes}</b></span><span class="small muted">후기 ${x.reviews}</span></div>`).join("") || `<div class="empty">좋아요를 받은 후기가 아직 없어요</div>`}</div>
     </section>
     <section class="card">
@@ -968,7 +973,7 @@ function vAcademies() {
   const show = S.user && (passed() || S.admin);
   return `
     <section class="row between" style="padding:0 2px"><h1>학원 정보</h1>${S.user && (passed() || S.admin) ? `<button class="btn sm ghost" data-act="addAcad">학원 추가</button>` : ""}</section>
-    ${isStaff() ? "" : `<section class="cta"><div class="col" style="gap:4px"><b>보내본 학원, 솔직한 후기를 남겨 주세요</b><span class="small">${esc(CONFIG.giftText)}</span></div><button class="btn lg block" data-act="reviewStart">✍️ 후기 쓰기</button></section>`}
+    ${isStaff() ? "" : `<section class="cta"><div class="col" style="gap:4px"><b>보내본 학원, 솔직한 후기를 남겨 주세요</b><span class="small">${esc(CONFIG.giftText || "학원을 고르는 다른 학부모님께 큰 도움이 돼요")}</span></div><button class="btn lg block" data-act="reviewStart">✍️ 후기 쓰기</button></section>`}
     <input id="acadSearch" class="input" placeholder="학원 이름 검색 (영문·한글 모두: stn = 에스티엔)" value="${esc(S.ui.q)}" data-input="search" aria-label="학원 검색">
     <div class="chips" role="group" aria-label="과목">${["전체", ...TOP_CATS].map((c) => `<button class="chip ${S.ui.cat === c || (c === "예체능" && ARTS.includes(S.ui.cat)) ? "on" : ""}" data-act="cat" data-c="${c}">${c}</button>`).join("")}</div>
     ${isArts(S.ui.cat) ? `<div class="chips" role="group" aria-label="예체능 세부">${["예체능", ...ARTS].map((c) => `<button class="chip sm ${S.ui.cat === c ? "on" : ""}" data-act="cat" data-c="${c}">${c === "예체능" ? "예체능 전체" : c}</button>`).join("")}</div>` : ""}
@@ -1822,7 +1827,7 @@ function vPost() {
     const f = S.data.postFull[fullKey(p.id)];
     if (f === undefined) loadFull(p.id);
     rest = f ? show(f.body) : f === false ? `<div class="notice">${icon.info}<span>뒷부분을 불러오지 못했어요. 새로고침해 주세요.</span></div>` : LOADING;
-  } else rest = libGate(p);
+  } else rest = p.hasBody === false ? "" : libGate(p);   // 뒷부분이 없는 글(공지 등)은 가입벽 없이 끝
   return `<article class="post col" style="gap:14px">
     <div class="crumb"><button class="link" data-act="nav" data-v="library">학딩자료실</button><span>/</span><button class="link" data-act="libCatGo" data-c="${esc(libCat(p))}">${esc(libCat(p))}</button></div>
     <div class="col" style="gap:6px"><h1>${esc(p.title)}</h1><span class="small muted">${ago(p.createdAt)}${p.updatedAt && p.updatedAt - (p.createdAt || 0) > 6e4 ? " (수정됨)" : ""} · 조회수 <b>${(p.views || 0).toLocaleString()}</b></span></div>
@@ -1849,6 +1854,8 @@ function countView(p) {
 const HTML_OK = new Set(["P", "BR", "STRONG", "B", "EM", "I", "U", "S", "SPAN", "H2", "H3", "BLOCKQUOTE", "UL", "OL", "LI", "A", "IMG", "TABLE", "THEAD", "TBODY", "TR", "TD", "TH", "IFRAME", "PRE", "CODE", "HR", "SUB", "SUP"]);
 const HTML_DROP = new Set(["SCRIPT", "STYLE", "OBJECT", "EMBED", "FORM", "INPUT", "TEXTAREA", "SELECT", "BUTTON", "LINK", "META", "SVG", "MATH", "TEMPLATE", "NOSCRIPT"]);
 const SAFE_COLOR = /^(color|background-color)\s*:\s*(#[0-9a-f]{3,8}|rgba?\([\d\s.,%]+\)|[a-z]+)$/i;
+// 다른 페이지에서 복사해 올 때 따라오는 '흰 배경·검은 글자'는 꾸밈이 아니므로 버림 (회색 바탕에 흰 띠가 생기는 문제)
+const PLAIN_STYLE = /^background-color\s*:\s*(#fff(fff)?|white|rgba?\(\s*255\s*,\s*255\s*,\s*255\s*(,\s*1\s*)?\)|transparent|rgba\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,\s*0(\.0+)?\s*\))$|^color\s*:\s*(#000(000)?|black|rgba?\(\s*(0|1?\d|2\d|3\d|4\d)\s*,\s*(0|1?\d|2\d|3\d|4\d)\s*,\s*(0|1?\d|2\d|3\d|4\d)\s*(,\s*1\s*)?\))$/i;
 function cleanHtml(html) {
   const root = new DOMParser().parseFromString(`<div>${html || ""}</div>`, "text/html").body.firstChild;
   const walk = (el) => [...el.children].forEach((c) => {
@@ -1859,7 +1866,7 @@ function cleanHtml(html) {
       const n = a.name.toLowerCase(), v = a.value.trim();
       let keep = null;
       if (n === "class") keep = v.split(/\s+/).filter((x) => /^ql-(align|indent|direction)-[a-z0-9]+$|^ql-video$/.test(x)).join(" ");
-      else if (n === "style") keep = v.split(";").map((x) => x.trim()).filter((x) => SAFE_COLOR.test(x)).join(";");
+      else if (n === "style") keep = v.split(";").map((x) => x.trim()).filter((x) => SAFE_COLOR.test(x) && !PLAIN_STYLE.test(x)).join(";");
       else if (n === "href" && tag === "A") keep = /^https?:\/\//i.test(v) || v.startsWith("#/") ? v : "";
       else if (n === "src" && tag === "IMG") keep = /^https:\/\//i.test(v) ? v : "";
       else if (n === "src" && tag === "IFRAME") keep = /^https:\/\/(www\.)?youtube(-nocookie)?\.com\/embed\/[\w-]+/i.test(v) ? v : "";
@@ -1950,7 +1957,7 @@ function vPostEdit() {
     <label class="f">제목<input class="input" name="title" required maxlength="80" value="${esc(e.title)}"></label>
     <label class="f">핵심 요약 <span class="hint">한 줄에 하나씩, 최대 5줄 · 누구나 봐요</span><textarea class="input" name="summary" rows="4">${esc((e.summary || []).join("\n"))}</textarea></label>
     <div class="f-ed"><b>앞부분</b> <span class="hint">누구나 보는 부분 · 맘카페에서 넘어온 분이 가입 전에 읽어요</span><div class="ed" id="edTeaser"></div>${tools("teaser")}</div>
-    <div class="f-ed"><b>뒷부분</b> <span class="hint">회원만 보는 부분 · 학교 이름이 들어간 표 같은 중요한 내용</span><div class="ed tall" id="edBody"></div>${tools("body")}</div>
+    <div class="f-ed"><b>뒷부분</b> <span class="hint">회원만 보는 부분 · 학교 이름이 들어간 표 같은 중요한 내용 · 공지처럼 숨길 내용이 없으면 비워 두세요(가입 안내가 안 떠요)</span><div class="ed tall" id="edBody"></div>${tools("body")}</div>
     <p class="small muted">사진은 GitHub 저장소에 올린 뒤 그 주소(https://…)를 🖼 버튼으로 넣어요. 예) https://hakding-app.github.io/hakding/img/card1.png · 동영상은 ▶ 버튼에 유튜브 주소를 넣어요.</p>
     <label class="check"><input type="checkbox" name="hidden" ${e.hidden ? "checked" : ""}>숨기기 (관리자만 보여요)</label>
     <div class="row" style="gap:8px"><button class="btn ghost" type="button" data-act="postCancel" data-id="${esc(id || "")}">취소</button><button class="btn lg grow" type="submit">${id ? "저장" : "올리기"}</button></div>
@@ -2431,7 +2438,8 @@ const F = {
     // 편집기 내용은 저장할 때 한 번 더 걸러 둠 (붙여 넣은 사진 파일·스크립트 등 제거). 글 한 편은 Firestore 문서 한도(1MB) 안에서
     const teaser = cleanHtml(EDITORS.teaser.root.innerHTML), body = cleanHtml(EDITORS.body.root.innerHTML);
     if (teaser.length > 200000 || body.length > 600000) { toast("글이 너무 길어요. 나눠서 올려 주세요"); return; }
-    const meta = { title: clip(fd.get("title"), 80), category: LIB_CATS.includes(fd.get("category")) ? fd.get("category") : "공지", summary, teaser, fmt: "html", level: fd.get("level") === "gate" ? "gate" : "member", hidden: fd.get("hidden") === "on", updatedAt: now() };
+    const hasBody = !!EDITORS.body.getText().trim() || /<(img|iframe|table)\b/i.test(body);
+    const meta = { title: clip(fd.get("title"), 80), category: LIB_CATS.includes(fd.get("category")) ? fd.get("category") : "공지", summary, teaser, fmt: "html", hasBody, level: fd.get("level") === "gate" ? "gate" : "member", hidden: fd.get("hidden") === "on", updatedAt: now() };
     let pid = id;
     if (id) await BE.db.update("library", id, meta);
     else pid = await BE.db.add("library", { ...meta, views: 0, createdAt: now() });
