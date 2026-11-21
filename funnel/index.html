@@ -261,11 +261,14 @@
 
     <!-- 6. 짠: 학생 수 공개 -->
     <section class="panel" data-i="6">
-      <div class="eyebrow">짠! 일부 먼저 공개합니다</div>
+      <div class="eyebrow">짠! 학교 목록 먼저 공개합니다</div>
       <h2>우리 구 고1은 몇 명,<br><span class="hl">1등급 자리</span>는 몇 개?</h2>
       <div class="tabs" role="group" aria-label="구·군 선택" data-tabs></div>
-      <div style="overflow-x:auto">
-        <table class="tbl"><thead><tr><th>학교</th><th>고1 학생</th><th>1등급 자리</th></tr></thead><tbody id="openBody"></tbody></table>
+      <div class="locked">
+        <div style="overflow-x:auto">
+          <table class="tbl"><thead><tr><th>학교</th><th>고1 학생</th><th>1등급 자리</th></tr></thead><tbody id="openBody"></tbody></table>
+        </div>
+        <div class="lock">학교별 학생 수와 1등급 자리는<br><b>학딩</b>에서 공개합니다</div>
       </div>
       <p class="note">1등급 자리 = 고1 학생 수 × 10% 어림값. 실제로는 과목 수강자 수와 동점자 처리에 따라 조금 달라집니다. 학생 수: 학교알리미 2026년 5월 공시.</p>
     </section>
@@ -342,7 +345,7 @@ function renderGu() {
   });
   const rows = OPEN[gu], maxN = 393;
   $("openBody").innerHTML = rows.map(([n, s, seat, sex]) =>
-    `<tr><td>${n}<span class="sex">${sex === "공학" ? "" : sex}</span></td><td><span class="meter" style="width:${Math.round(s / maxN * 46)}px"></span>${s}명</td><td class="seat">${seat}자리</td></tr>`).join("");
+    `<tr><td>${n}<span class="sex">${sex === "공학" ? "" : sex}</span></td><td class="bl"><span class="meter" style="width:${Math.round(s / maxN * 46)}px"></span>${s}명</td><td class="seat bl">${seat}자리</td></tr>`).join("");
   $("blurBody").innerHTML = BLUR[gu].rows.map((r, i) => r
     ? `<tr><td class="bl">${"■".repeat(3 + (i % 3))}고</td><td class="bl">${r[0].toFixed(1)}</td><td class="bl">${r[1].toFixed(1)}%</td><td class="bl">${r[2].toFixed(1)}%</td></tr>`
     : `<tr><td class="bl">${"■".repeat(4)}고</td><td class="na" colspan="3">공시 확인 중</td></tr>`).join("");
