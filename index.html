@@ -200,6 +200,15 @@ footer.foot button{background:none;border:0;color:var(--ink3);text-decoration:un
 .mt-win{border:2px solid var(--accent);background:linear-gradient(160deg,#FFFBEB,#fff 60%);animation:zzan .6s cubic-bezier(.2,1.4,.4,1)}
 @keyframes zzan{0%{opacity:0;transform:scale(.7)}100%{opacity:1;transform:scale(1)}}
 .zzan{font-size:28px;font-weight:800;color:var(--brand);text-align:center;animation:zzan .5s ease}
+/* ---- 내 자리 진단기 (중학교 배정) ---- */
+.dg-list{display:flex;flex-direction:column;gap:6px;max-height:420px;overflow:auto}
+.dg-two{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dg-pick{border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+.dg-pick b{display:block;font-size:17px;margin:2px 0 4px}
+.dg-tbl{width:100%;border-collapse:collapse;font-size:14px}.dg-tbl td{padding:7px 2px;border-bottom:1px solid var(--line)}.dg-tbl td:last-child{text-align:right;color:var(--ink3)}
+.dg-tbl tr.me td{color:var(--brand);font-weight:700}
+.dg-steps{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;font-size:14px}
+details.dg-ev{font-size:13px;color:var(--ink3)}details.dg-ev summary{cursor:pointer;color:var(--brand);font-weight:600}details.dg-ev ul{margin:6px 0 0;padding-left:18px}
 /* ---- 성능: 화면 밖 카드는 그리지 않음, 움직임 줄이기 설정 존중 ---- */
 .acad-grid > .acad{content-visibility:auto;contain-intrinsic-size:auto 104px}
 /* ---- 학원 목록 페이지 번호 ---- */
@@ -832,10 +841,10 @@ function renderApp() {
   if (needLogin.includes(v) && !S.user) v = "login";
   else if (S.user && S.banned && v !== "privacy") v = "banned";
   else if (S.user && !S.profile && v !== "privacy") v = "onboard";
-  else if (S.user && S.profile && !passed() && !S.admin && !["privacy", "me", "gate", "review", "academy", "academies", "match", "library", "post"].includes(v)) v = "gate";
+  else if (S.user && S.profile && !passed() && !S.admin && !["privacy", "me", "gate", "review", "academy", "academies", "match", "library", "post", "diag"].includes(v)) v = "gate";
   if ((v === "admin" || v === "postEdit") && !S.admin) v = "home";
 
-  const views = { home: vHome, academies: vAcademies, academy: vAcademy, rides: vRides, rooms: vRooms, match: vMatch, schedule: vSchedule, library: vLibrary, post: vPost, postEdit: vPostEdit, me: vMe, admin: vAdmin, privacy: vPrivacy, login: vLogin, banned: vBanned, onboard: vOnboard, gate: vGate, review: vReviewForm };
+  const views = { home: vHome, academies: vAcademies, academy: vAcademy, rides: vRides, rooms: vRooms, match: vMatch, schedule: vSchedule, library: vLibrary, post: vPost, postEdit: vPostEdit, me: vMe, admin: vAdmin, privacy: vPrivacy, login: vLogin, banned: vBanned, onboard: vOnboard, gate: vGate, review: vReviewForm, diag: vDiag };
   const body = (views[v] || vHome)();
   const tab = { home: "home", academies: "academies", academy: "academies", match: "match", rides: "rides", schedule: "schedule", library: "library", post: "library", postEdit: "library" }[v] || "";
   app.innerHTML = `
@@ -893,6 +902,7 @@ function vHome() {
       ${S.user ? `<button class="btn lg block" data-act="nav" data-v="gate">기여하고 전체 이용하기</button>` : `<button class="btn lg block" data-act="login">구글로 1초 가입</button>`}
     </section>
     ${statsStrip()}
+    ${diagPromo("")}
     ${noticeHtml("")}
     <section class="card">
       <div class="row between"><h2>분야별 학원 TOP 3</h2><button class="link" data-act="nav" data-v="match">맞춤 학원 찾기</button></div>
@@ -923,6 +933,7 @@ function vHome() {
       <button class="btn" type="submit" style="flex:none;white-space:nowrap">검색</button>
     </form>
     ${noticeHtml("wide")}
+    ${diagPromo("wide")}
     <section class="card">
       <div class="row between"><h2>분야별 학원 TOP 3</h2><button class="link" data-act="nav" data-v="match">맞춤 학원</button></div>
       <div id="t3">${top3Html()}</div>
@@ -1233,6 +1244,130 @@ function pickListHtml(q) {
 function vReviewForm() {
   const edit = S.ui.editReview ? S.data.myReviews.find((r) => r.id === S.ui.editReview) : null;
   return reviewFormHtml(S.param || "", edit, false);
+}
+
+/* ---------- 내 자리 진단기 (2027 울산 중학교 배정) ----------
+   데이터: diag_data.js (window.DIAG = {groups, schools, apts}) — 화면을 열 때만 불러옴.
+   만드는 곳: D:\학원라이딩_Proj\내자리진단기\scripts\build_diag_data.py (확률이 아니라 구조·근거만 보여 줌) */
+const DG_GUS = ["남구", "중구", "동구", "북구", "울주군"];
+const DG_BADGE = { 붐빔: "danger", 높음: "danger", 넓음: "danger", 보통: "accent", 여유: "brand", 좁음: "brand" };
+const dgBadge = (t) => `<span class="badge ${DG_BADGE[t] || ""}">${esc(t)}</span>`;
+const dgKm = (km) => (km == null ? "거리 미상" : km + "km");
+const dgState = () => (S.ui.dg = S.ui.dg || { s: "gu", hist: [], q: "" });
+function diagPromo(cls) {
+  return `<section class="card ${cls}"><div class="row between"><h2>🏫 내 자리 진단기</h2><span class="badge accent">2027 중학교 배정</span></div>
+    <p class="small muted">1월 15일 발표 전, 우리 아파트와 내가 쓴 1·2지망으로 학교군 자리 사정과 '안 됐을 때'를 미리 봐요.</p>
+    <button class="btn block" data-act="nav" data-v="diag">진단해 보기</button></section>`;
+}
+function loadDiag() {
+  if (window.DIAG || S.ui.dgLoad) return;
+  S.ui.dgLoad = "loading";
+  const s = document.createElement("script");
+  s.src = "diag_data.js?v=20261128";
+  s.onload = () => { S.ui.dgLoad = "ok"; if (S.view === "diag") render(); };
+  s.onerror = () => { S.ui.dgLoad = "err"; if (S.view === "diag") render(); };
+  document.head.appendChild(s);
+}
+function dgAvail(st) {                                 // 성별에 맞는 학교 + 좌표 없는 학교(신설 서사중 등)는 '거리 미상'
+  const list = window.DIAG.apts[st.ai].gs[st.g].slice();
+  Object.entries(window.DIAG.schools).forEach(([m, s]) => { if (s.g === st.g && !list.some(([x]) => x === m)) list.push([m, null]); });
+  return list.filter(([m]) => { const sx = (window.DIAG.schools[m] || {}).sx || "공학"; return sx === "공학" || sx === st.sex; });
+}
+function dgAptRows(st) {
+  const k = st.q.trim();
+  const rows = window.DIAG.apts.map((a, i) => [a, i]).filter(([a]) => a.gu === st.gu && (!k || a.n.includes(k))).slice(0, 80);
+  return rows.map(([a, i]) => `<button class="pick-item" data-act="dgApt" data-i="${i}"><span>${esc(a.n)}</span><span class="xs muted">${a.hh.toLocaleString()}세대 · ${esc(a.y)}년</span></button>`).join("")
+    || `<div class="empty">찾는 단지가 없어요.</div>`;
+}
+function vDiag() {
+  const st = dgState();
+  if (!window.DIAG) {
+    loadDiag();
+    return `<section class="card"><div class="empty">${S.ui.dgLoad === "err" ? "진단 자료를 불러오지 못했어요. 새로고침해 주세요." : "진단 자료를 불러오는 중…"}</div></section>`;
+  }
+  const D = window.DIAG, apt = st.ai != null ? D.apts[st.ai] : null;
+  if (st.s === "res") return dgResult(st);
+  if (st.s === "zone") return `<div class="col" style="gap:14px">
+    <section class="col" style="gap:4px;padding:0 2px"><span class="badge brand" style="align-self:flex-start">내 자리 진단 · 결과</span><h1>${esc(apt.n)} · ${esc(apt.zone)}</h1></section>
+    <section class="card"><h2>추첨 없이 배정되는 곳이에요</h2><p class="small">중학교가 한 곳뿐인 <b>중학구</b>라 지망과 추첨 없이 그 학교로 배정돼요.</p>
+      <p class="small muted">통학이 멀다면 같은 학교 이웃과 등하교를 나누는 방법도 있어요.</p>
+      <button class="btn block" data-act="nav" data-v="rides">같은 학교 이웃과 통학 나누기 (라이딩)</button></section>
+    <button class="btn ghost block" data-act="dgReset">처음부터</button></div>`;
+  const N = 5, step = { gu: 1, apt: 2, grp: 2, sex: 3, w1: 4, w2: 5 }[st.s];
+  let title = "", lead = "", body = "";
+  if (st.s === "gu") {
+    title = "어느 구에 사세요?"; lead = "주민등록상 주소 기준이에요. 2027학년도부터 출신 초등학교가 아니라 사는 곳으로 지원해요.";
+    body = `<div class="mt-opts">${DG_GUS.map((g) => `<button class="mt-opt" data-act="dgPick" data-k="gu" data-v="${g}">${g}</button>`).join("")}</div>`;
+  } else if (st.s === "apt") {
+    title = "아파트를 골라 주세요"; lead = `${esc(st.gu)} 아파트 단지예요. 세대수가 많은 곳부터 보여요.`;
+    body = `<input class="input" data-input="dgq" value="${esc(st.q)}" placeholder="단지 이름으로 찾기 (예: 주공, 푸르지오)" aria-label="단지 이름 검색">
+      <div class="dg-list" id="dgList">${dgAptRows(st)}</div>
+      <p class="xs muted">목록에 없으면 가까운 큰 단지를 골라도 결과가 거의 같아요.</p>`;
+  } else if (st.s === "grp") {
+    title = "1단계에 쓴 학교군은 어디예요?"; lead = `${esc(apt.n)}은(는) 두 학교군 중 하나를 고를 수 있는 곳이에요. 원서에 쓴 학교군을 골라 주세요.`;
+    body = `<div class="mt-opts wide">${Object.keys(apt.gs).map((g) => `<button class="mt-opt" data-act="dgPick" data-k="g" data-v="${esc(g)}">${esc(g)} 학교군<small>중학교 ${apt.gs[g].length}곳</small></button>`).join("")}</div>`;
+  } else if (st.s === "sex") {
+    title = "아이는 아들인가요, 딸인가요?"; lead = "남중·여중이 있는 학교군이 있어서, 쓸 수 있는 학교만 보여 드리려고요. (저장하지 않아요)";
+    body = `<div class="mt-opts"><button class="mt-opt" data-act="dgPick" data-k="sex" data-v="남">아들</button><button class="mt-opt" data-act="dgPick" data-k="sex" data-v="여">딸</button></div>`;
+  } else {
+    const n = st.s === "w1" ? 1 : 2, opts = dgAvail(st).filter(([m]) => n === 1 || m !== st.w1);
+    title = `${n}지망으로 쓴 학교는?`; lead = n === 1 ? `${esc(st.g)} 학교군에서 고를 수 있는 학교예요. 집에서 가까운 순서예요.` : "1지망 학교는 빠져 있어요.";
+    body = `<div class="mt-opts">${opts.map(([m, km]) => `<button class="mt-opt" data-act="dgPick" data-k="w${n}" data-v="${esc(m)}">${esc(m)}<small>${dgKm(km)}</small></button>`).join("")}</div>`;
+  }
+  return `<div class="mt-wrap col" style="gap:14px">
+    <section class="col" style="gap:8px;padding:0 2px"><span class="badge brand" style="align-self:flex-start">내 자리 진단 · ${step} / ${N}</span>
+      <div class="mt-prog">${Array.from({ length: N }, (_, i) => `<i class="${i < step ? "on" : ""}"></i>`).join("")}</div></section>
+    <section class="card mt-step"><h1>${title}</h1><p class="small muted">${lead}</p>${body}
+      ${st.hist.length ? `<button class="link small" style="align-self:flex-start" data-act="dgBack">← 이전</button>` : ""}</section></div>`;
+}
+function dgCombo(l1, l2) {
+  const A = "1·2지망을 모두 경합 학교로 쓰면 후순위나 지망하지 않은 학교에 배정될 가능성이 높아진다";
+  if (l1 === "붐빔" && l2 === "붐빔") return `<div class="notice warn"><span><b>두 학교 모두 붐비는 쪽이에요.</b> 1단계에서 둘 다 안 되면 2단계(남은 40%)로 넘어가요.<br>교육청 안내: "${A}"</span></div>`;
+  if (l2 === "붐빔") return `<div class="notice warn"><span><b>2지망 학교가 붐비는 쪽이에요.</b> 1지망 지원자가 정원의 60%를 넘으면 그 학교는 1지망끼리만 추첨해서, 2지망으로 쓴 학생에겐 1단계 기회가 없어요.</span></div>`;
+  if (l1 === "붐빔") return `<div class="notice"><span><b>1지망은 붐비지만 2지망은 비교적 여유 있는 조합이에요.</b> 1지망이 안 돼도 2지망 기회가 남아 있을 가능성이 커요.</span></div>`;
+  return `<div class="notice"><span><b>두 학교 모두 붐빔 신호가 크지 않아요.</b> 1단계에서 배정될 가능성이 비교적 높은 조합이에요.</span></div>`;
+}
+const dgTight = (lv) => lv === "높음" ? `<div class="notice warn"><span>다만 <b>학교군 전체 자리가 빠듯해요.</b> 올해 초6이 올해 중1 자리보다 많아서, 학교별 신호가 약해도 안심하긴 일러요.</span></div>` : "";
+function dgEvidence(m) {
+  const s = window.DIAG.schools[m]; if (!s) return "";
+  const items = s.sig.length ? s.sig : ["눈에 띄는 붐빔 신호가 없어요"];
+  return `<details class="dg-ev"><summary>근거 보기</summary><ul>${items.map((x) => `<li>${esc(x)}</li>`).join("")}
+    <li>올해 1학년 ${esc(s.n1 || "-")}명 · 학급당 ${esc(s.per || "-")}명 · 전학 빈자리 ${s.vac === "" ? "-" : esc(s.vac)}</li></ul>
+    <p style="margin:6px 0 0">학교별 1지망 경쟁률은 공개되지 않아요. 공개 자료로 본 '붐빔 신호'라 실제와 다를 수 있어요.</p></details>`;
+}
+function dgResult(st) {
+  const D = window.DIAG, apt = D.apts[st.ai], G = D.groups[st.g] || {}, s1 = D.schools[st.w1] || {}, s2 = D.schools[st.w2] || {};
+  const press = G.lv === "계산 불가" ? `${dgBadge("계산 불가")} <span class="small muted">서사중이 새로 문을 열어 정원을 아직 몰라요</span>`
+    : `${dgBadge(G.lv)} <span class="small muted">올해 초6 약 ${G.d1.toLocaleString()}${G.d2 !== G.d1 ? "~" + G.d2.toLocaleString() : ""}명 / 올해 중1 자리 ${G.seats.toLocaleString()}명</span>`;
+  const spread = G.lv === "계산 불가" ? `${dgBadge("확인 중")} <span class="small muted">새 학교 위치가 확정되면 알려 드릴게요</span>`
+    : `${dgBadge(G.sp)} <span class="small muted">밀리면 가장 가까운 학교보다 평균 ${G.spread}km 더 먼 학교까지 갈 수 있어요</span>`;
+  const far = dgAvail(st);
+  return `<div class="col" style="gap:14px">
+    <section class="col" style="gap:4px;padding:0 2px"><span class="badge brand" style="align-self:flex-start">내 자리 진단 · 결과</span>
+      <h1>${esc(apt.n)} · ${esc(st.g)} 학교군</h1><p class="small muted">2027학년도 배정 방식 기준이에요. 확률이 아니라 '구조'와 '근거'를 보여 드려요.</p></section>
+    <section class="card"><h2>① 우리 학교군 자리</h2><p class="small">자리 압박 ${press}</p><p class="small">학교 사이 거리 ${spread}</p></section>
+    <section class="card"><h2>② 내가 쓴 학교</h2>
+      <div class="dg-two">
+        <div class="dg-pick"><span class="xs muted">1지망</span><b>${esc(st.w1)}</b>${dgBadge(s1.lv || "자료 부족")}${dgEvidence(st.w1)}</div>
+        <div class="dg-pick"><span class="xs muted">2지망</span><b>${esc(st.w2)}</b>${dgBadge(s2.lv || "자료 부족")}${dgEvidence(st.w2)}</div>
+      </div>${dgCombo(s1.lv, s2.lv)}${dgTight(G.lv)}</section>
+    <section class="card"><h2>③ 2단계로 넘어가면</h2>
+      <p class="small muted">2단계는 '가장 가까운 학교'가 아니라 '먼 학교를 피하는' 배정이에요. 우리 집에서 가까운 순서는 이래요.</p>
+      <table class="dg-tbl">${far.map(([m, km], i) => `<tr class="${m === st.w1 || m === st.w2 ? "me" : ""}"><td>${i + 1}. ${esc(m)}${m === st.w1 ? " (1지망)" : m === st.w2 ? " (2지망)" : ""}</td><td>${dgKm(km)}</td></tr>`).join("")}</table>
+      <p class="xs muted">직선거리예요. 교육청은 아파트 정문에서 학교 정문까지 통학 시간(GIS)으로 계산해서 순서가 다를 수 있어요.</p></section>
+    <section class="card"><h2>④ 최악이라면: 먼 학교로 배정됐을 때</h2>
+      <ol class="dg-steps">
+        <li><b>1월 15일(금) 11시 발표</b> · 나이스·교육지원청 누리집</li>
+        <li><b>재배정은 1월 27~29일 사흘뿐</b> · 전 가족이 <u>다른 학교군으로 실제 이사</u>한 경우에만, 한 번. 같은 학교군 안에서는 안 돼요</li>
+        <li><b>배정 학교 입학을 포기하면</b> 그해 다른 학교로 다시 배정받을 수 없어요</li>
+        <li><b>입학 후 전학</b> · 빈자리가 있는 학교로 신청할 수 있어요</li>
+        <li><b>통학이 걱정이면</b> · 같은 학교로 배정된 이웃끼리 등하교를 나누는 방법이 있어요</li>
+      </ol>
+      <button class="btn block" data-act="nav" data-v="rides">같은 학교 이웃과 통학 나누기 (라이딩)</button>
+      <button class="btn ghost block" data-act="dgVote">내 1지망 익명으로 보태기</button></section>
+    <p class="xs muted">자료: 울산광역시교육청 고시 제2026-404호·2027학년도 중학교 입학 배정 추진계획, 학교알리미 2026년 5월 공시(학년별 학생 수), 학구도 안내서비스(2026-09-20), 한국부동산원 공동주택 단지 정보, 전학 배정 가능 인원(2026-11-28 조회).
+      배정 결과를 예측하는 계산기가 아니에요. 문의: 강북교육지원청 052-219-5662 · 강남교육지원청 052-228-6672</p>
+    <button class="btn ghost block" data-act="dgReset">처음부터</button></div>`;
 }
 
 /* ---------- 맞춤 학원 (PASS 인증처럼 한 단계씩) ---------- */
@@ -2194,6 +2329,23 @@ const A = {
     setTimeout(() => { m.s += 1; render(); window.scrollTo(0, 0); }, 280);
   },
   mtBack: () => { const m = mtState(); m.s = Math.max(0, m.s - 1); render(); },
+  dgPick: (d, el) => {
+    const st = dgState(); st[d.k] = d.v;
+    const next = { gu: "apt", g: "sex", sex: "w1", w1: "w2", w2: "res" }[d.k];
+    if (d.k === "gu") st.q = "";
+    el.closest(".mt-opts").querySelectorAll(".mt-opt").forEach((b) => b.classList.remove("pick")); el.classList.add("pick");
+    setTimeout(() => { st.hist.push(st.s); st.s = next; render(); window.scrollTo(0, 0); }, 280);
+  },
+  dgApt: (d) => {
+    const st = dgState(), a = window.DIAG.apts[Number(d.i)];
+    st.ai = Number(d.i); st.hist.push(st.s);
+    if (a.zone) st.s = "zone";
+    else { const gs = Object.keys(a.gs); if (gs.length > 1) st.s = "grp"; else { st.g = gs[0]; st.s = "sex"; } }
+    render(); window.scrollTo(0, 0);
+  },
+  dgBack: () => { const st = dgState(); if (st.hist.length) st.s = st.hist.pop(); render(); },
+  dgReset: () => { S.ui.dg = null; render(); window.scrollTo(0, 0); },
+  dgVote: () => toast("익명 1지망 보태기는 곧 열려요. 학교군별 30명이 모이면 분포를 보여 드릴게요."),
   mtReset: () => { S.ui.mt = null; render(); },
   rank: (d) => { S.ui.rankMode = d.m; render(); },
   t3: (d) => { S.ui.t3 = Number(d.i); const b = $("#t3"); if (b) b.innerHTML = top3Html(); startT3(); },
@@ -2456,6 +2608,7 @@ document.addEventListener("input", (e) => {
   const k = e.target.dataset.input; if (!k) return;
   // 글자 칠 때마다 수천 곳을 다시 거르지 않도록 잠깐 기다렸다가(디바운스) 한 번만
   if (k === "search") { const val = e.target.value.trim(); clearTimeout(inputT.search); inputT.search = setTimeout(() => { S.ui.q = val; S.ui.acadPage = 1; refreshAcadList(); }, 180); }
+  if (k === "dgq") { const val = e.target.value; clearTimeout(inputT.dgq); inputT.dgq = setTimeout(() => { const st = dgState(); st.q = val; const box = $("#dgList"); if (box && window.DIAG) box.innerHTML = dgAptRows(st); }, 150); }
   if (k === "memberQ") { const val = e.target.value.trim(); clearTimeout(inputT.memberQ); inputT.memberQ = setTimeout(() => { S.ui.memberQ = val; loadMembers(false); }, 150); }
   if (k === "pick") {
     const f = e.target.closest("form, .modal") || document; const h = f.querySelector('[name="academyId"]'); if (h) h.value = "";
