@@ -115,6 +115,10 @@ legend{font-size:13px;font-weight:600;color:var(--ink2);padding:0;margin-bottom:
 .notice.warn{background:var(--warn-l);color:#6B3309}
 .notice.danger{background:var(--danger-l);color:#7A1E09}
 .notice svg{flex:none;margin-top:2px}
+.privacy-box{border:1.5px solid var(--brand);background:var(--brand-l);border-radius:14px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;font-size:13.5px;line-height:1.55}
+.privacy-box h3{margin:0;font-size:15px;color:var(--brand)}
+.privacy-box ul{margin:0;padding-left:18px}
+.lock-tag{display:inline-block;font-size:11.5px;font-weight:600;color:var(--brand);background:var(--brand-l);border-radius:999px;padding:1px 8px;margin-left:4px;vertical-align:1px}
 .review{border-top:1px solid #EDF0F3;padding-top:12px;display:flex;flex-direction:column;gap:7px}
 .review:first-child{border-top:0;padding-top:0}
 .tabbar{display:flex;gap:4px;background:#E8EBEF;padding:4px;border-radius:12px}
@@ -1144,17 +1148,32 @@ function vBanned() {
     <button class="link small" data-act="nav" data-v="privacy">개인정보 처리방침 보기</button>
   </section>`;
 }
+function aptPickHtml(q) {                             // 가입 화면 아파트 찾기: 관리자가 올린 아파트 목록(config/apartments)에서
+  const k = q.replace(/\s/g, ""); if (!k) return "";
+  const rows = S.data.apartments.filter((a) => a.name.replace(/\s/g, "").includes(k)).slice(0, 8);
+  return rows.map((a) => `<button type="button" class="pick-item" data-act="pickApt" data-n="${esc(a.name)}" data-d="${esc(a.dong || "")}"><b>${esc(a.name)}</b><span class="xs muted">${esc(a.dong || "")}</span></button>`).join("");
+}
 function vOnboard() {
-  const apts = S.data.apartments;
+  // 아파트 목록은 회원 자료와 함께 불러오는데, 가입 전(프로필 없음)엔 안 불러와서 여기서 따로 (규칙: 로그인하면 읽기 가능)
+  if (!S.data.apartments.length && !S.ui.aptLoad) { S.ui.aptLoad = 1; BE.db.get("config", "apartments").then((c) => { S.data.apartments = (c && c.list) || []; }).catch(() => {}); }
   return `
     <section class="col" style="gap:6px;padding:0 2px"><div class="steps"><i class="on"></i><i></i><i></i></div><h1>프로필 만들기</h1><p class="muted small">최소한의 정보만 받아요. 아이 이름·학교·사진은 받지 않아요.</p></section>
     <form class="card" data-form="onboard">
-      <label class="f">닉네임 * <span class="hint">다른 회원에게 보이는 이름이에요. 예: 하늘맘, 도윤아빠</span><input class="input" name="nick" required maxlength="12" minlength="2"></label>
-      <label class="f">사는 동네 *<input class="input" name="dong" required maxlength="20" list="dongs2" placeholder="예: 새빛동"></label>
+      <div class="privacy-box">
+        <h3>🔒 입력한 정보는 다른 회원에게 거의 보이지 않아요</h3>
+        <ul>
+          <li><b>아파트·아이 학년대·이메일</b>은 다른 회원에게 <b>보이지 않아요</b>. 모임방 안내와 맞춤 정보에만 써요.</li>
+          <li><b>닉네임</b>은 후기·댓글에서 가려서 보여요 (예: 하*맘). 라이딩 글이나 학원 정보 수정 기록에는 그대로 보여요.</li>
+          <li><b>동네</b>는 내가 라이딩 글을 올릴 때만 그 글에 함께 보여요.</li>
+          <li>라이딩 <b>연락 링크</b>는 함께 타기를 신청한 회원에게만 보여요.</li>
+        </ul>
+      </div>
+      <label class="f">닉네임 * <span class="hint">예: 하늘맘, 도윤아빠 · 후기·댓글에선 가려서 보여요</span><input class="input" name="nick" required maxlength="12" minlength="2"></label>
+      <label class="f">아파트·단지 <span class="lock-tag">🔒 비공개</span> <span class="hint">선택 · 이름을 치면 목록에서 고를 수 있고, 동네도 자동으로 채워져요</span><input class="input" name="apt" maxlength="30" data-input="aptq" autocomplete="off" placeholder="예: 신정현대홈타운"></label>
+      <div class="pick-list" id="aptList"></div>
+      <label class="f">사는 동네 * <span class="hint">라이딩 글을 올릴 때만 그 글에 보여요</span><input class="input" name="dong" required maxlength="20" list="dongs2" placeholder="예: 새빛동"></label>
       <datalist id="dongs2">${dongList().map((d) => `<option value="${esc(d)}">`).join("")}</datalist>
-      <label class="f">아파트·단지 <span class="hint">선택 · 같은 단지 모임방 안내에 써요</span><input class="input" name="apt" maxlength="30" list="apts"></label>
-      <datalist id="apts">${apts.map((a) => `<option value="${esc(a.name)}">${esc(a.dong)}</option>`).join("")}</datalist>
-      <fieldset><legend>아이 학년대 * <span class="hint" style="font-weight:400">(여러 개 선택 가능)</span></legend>
+      <fieldset><legend>아이 학년대 * <span class="lock-tag">🔒 비공개</span> <span class="hint" style="font-weight:400">(여러 개 선택 가능)</span></legend>
         <div class="chips wrap">${GRADES.map((g) => `<label class="check" style="padding:2px 8px 2px 0"><input type="checkbox" name="grades" value="${g}">${g}</label>`).join("")}</div>
       </fieldset>
       <label class="check" style="align-items:flex-start"><input type="checkbox" name="staff"><span><b>학원 관계자예요</b> <span class="hint">(원장·강사·직원·홍보 담당)</span><br><span class="xs muted">관계자는 후기와 별점을 남길 수 없고, 학원 정보를 고치면 이름 옆에 '학원 관계자'로 표시돼요. 학부모가 광고와 진짜 후기를 구분할 수 있게 하기 위해서예요.</span></span></label>
@@ -2321,6 +2340,12 @@ const A = {
   cat: (d) => { S.ui.cat = d.c; S.ui.acadPage = 1; render(); },
   reload: () => location.reload(),
   acadPage: (d) => { S.ui.acadPage = Number(d.p) || 1; refreshAcadList(); const box = $("#acadList"); if (box) window.scrollTo(0, Math.max(0, box.getBoundingClientRect().top + window.scrollY - 80)); },
+  pickApt: (d, el) => {                                // 아파트를 고르면 동네도 채움
+    const f = el.closest("form"); if (!f) return;
+    f.querySelector('[name="apt"]').value = d.n;
+    if (d.d) f.querySelector('[name="dong"]').value = d.d;
+    const box = f.querySelector("#aptList"); if (box) box.innerHTML = "";
+  },
   pickAcad: (d, el) => {
     const a = acadGet(d.id); if (!a) return;
     const f = el.closest("form");
@@ -2624,6 +2649,7 @@ document.addEventListener("input", (e) => {
   // 글자 칠 때마다 수천 곳을 다시 거르지 않도록 잠깐 기다렸다가(디바운스) 한 번만
   if (k === "search") { const val = e.target.value.trim(); clearTimeout(inputT.search); inputT.search = setTimeout(() => { S.ui.q = val; S.ui.acadPage = 1; refreshAcadList(); }, 180); }
   if (k === "dgq") { const val = e.target.value; clearTimeout(inputT.dgq); inputT.dgq = setTimeout(() => { const st = dgState(); st.q = val; const box = $("#dgList"); if (box && window.DIAG) box.innerHTML = dgAptRows(st); }, 150); }
+  if (k === "aptq") { const val = e.target.value; clearTimeout(inputT.aptq); inputT.aptq = setTimeout(() => { const box = $("#aptList"); if (box) box.innerHTML = aptPickHtml(val); }, 120); }
   if (k === "memberQ") { const val = e.target.value.trim(); clearTimeout(inputT.memberQ); inputT.memberQ = setTimeout(() => { S.ui.memberQ = val; loadMembers(false); }, 150); }
   if (k === "pick") {
     const f = e.target.closest("form, .modal") || document; const h = f.querySelector('[name="academyId"]'); if (h) h.value = "";
