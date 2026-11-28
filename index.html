@@ -902,7 +902,6 @@ function vHome() {
       ${S.user ? `<button class="btn lg block" data-act="nav" data-v="gate">기여하고 전체 이용하기</button>` : `<button class="btn lg block" data-act="login">구글로 1초 가입</button>`}
     </section>
     ${statsStrip()}
-    ${diagPromo("")}
     ${noticeHtml("")}
     <section class="card">
       <div class="row between"><h2>분야별 학원 TOP 3</h2><button class="link" data-act="nav" data-v="match">맞춤 학원 찾기</button></div>
@@ -933,7 +932,6 @@ function vHome() {
       <button class="btn" type="submit" style="flex:none;white-space:nowrap">검색</button>
     </form>
     ${noticeHtml("wide")}
-    ${diagPromo("wide")}
     <section class="card">
       <div class="row between"><h2>분야별 학원 TOP 3</h2><button class="link" data-act="nav" data-v="match">맞춤 학원</button></div>
       <div id="t3">${top3Html()}</div>
@@ -1254,10 +1252,24 @@ const DG_BADGE = { 붐빔: "danger", 높음: "danger", 넓음: "danger", 보통:
 const dgBadge = (t) => `<span class="badge ${DG_BADGE[t] || ""}">${esc(t)}</span>`;
 const dgKm = (km) => (km == null ? "거리 미상" : km + "km");
 const dgState = () => (S.ui.dg = S.ui.dg || { s: "gu", hist: [], q: "" });
-function diagPromo(cls) {
-  return `<section class="card ${cls}"><div class="row between"><h2>🏫 내 자리 진단기</h2><span class="badge accent">2027 중학교 배정</span></div>
-    <p class="small muted">1월 15일 발표 전, 우리 아파트와 내가 쓴 1·2지망으로 학교군 자리 사정과 '안 됐을 때'를 미리 봐요.</p>
-    <button class="btn block" data-act="nav" data-v="diag">진단해 보기</button></section>`;
+function diagPromo(cls) {                             // 자료실 '전체'·'입시제도' 맨 위에 고정
+  return `<section class="card ${cls}"><div class="row between"><h2>🏫 내 자리 진단기</h2><span class="badge accent">중학교 배정</span></div>
+    <p class="small muted">우리 아파트와 1·2지망 후보로 학교군 자리 사정과 '안 됐을 때'를 미리 봐요. 원서 쓰기 전 초5·초6 부모님께 추천해요.</p>
+    <button class="btn block" data-act="nav" data-v="diag">${S.user ? "진단해 보기" : "가입하고 진단해 보기"}</button></section>`;
+}
+function dgLoginCard() {                               // 진단기는 가입한 회원만 (학원 후기는 없어도 됨)
+  return `<section class="card" style="gap:12px">
+    <div class="row between"><h1>🏫 내 자리 진단기</h1><span class="badge accent">회원 전용</span></div>
+    <p class="small">우리 아파트와 1·2지망 후보만 고르면 한 화면에 보여 드려요.</p>
+    <ol class="dg-steps">
+      <li><b>우리 학교군 자리 사정</b> · 아이 수와 자리 비교</li>
+      <li><b>1·2지망 학교의 붐빔 신호</b>와 그 근거</li>
+      <li><b>2단계로 밀리면</b> 우리 집에서 가까운 학교 순서</li>
+      <li><b>먼 학교가 나왔을 때</b> 할 일 (재배정 조건, 전학, 통학)</li>
+    </ol>
+    <div class="notice"><span>학원 후기를 쓰지 않아도 <b>가입만 하면 바로</b> 쓸 수 있어요.</span></div>
+    <button class="btn lg block" data-act="diagLogin">구글로 1초 가입하고 진단하기</button>
+    <p class="xs muted">아이 이름·학교·사진은 받지 않아요. 진단에 고른 아파트·학교는 저장하지 않아요.</p></section>`;
 }
 function loadDiag() {
   if (window.DIAG || S.ui.dgLoad) return;
@@ -1280,6 +1292,7 @@ function dgAptRows(st) {
     || `<div class="empty">찾는 단지가 없어요.</div>`;
 }
 function vDiag() {
+  if (!S.user) return dgLoginCard();
   const st = dgState();
   if (!window.DIAG) {
     loadDiag();
@@ -1955,6 +1968,7 @@ function vLibrary() {
       ${S.admin ? `<button class="btn sm" data-act="nav" data-v="postEdit">새 자료 쓰기</button>` : ""}
     </div>
     <div class="lib-cats" role="group" aria-label="분야">${["전체", ...LIB_CATS].map((c) => `<button class="${c === cat ? "on" : ""}" aria-pressed="${c === cat}" data-act="libCat" data-c="${c}">${c}</button>`).join("")}</div>
+    ${cat === "전체" || cat === "입시제도" ? diagPromo("") : ""}
     <div class="lib-list">
     ${list.map((p, i) => `<button class="lib-row" data-act="nav" data-v="post" data-p="${esc(p.id)}">
       <span class="n">${i + 1}</span>
@@ -2237,6 +2251,7 @@ function inAppGuide() {
 const A = {
   nav: (d) => go(d.v, d.p),
   libLogin: (d) => { setReturn("post", d.id); return A.login(); },
+  diagLogin: () => { setReturn("diag"); return A.login(); },
   libGateGo: (d) => { setReturn("post", d.id); go("gate"); },
   // 회원 전용 첨부: 누를 때만 불러옴 (읽기 권한은 Firestore 규칙이 뒷부분과 똑같이 막음)
   async libFile(d) {
